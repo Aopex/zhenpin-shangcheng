@@ -1,0 +1,33 @@
+<view class="page">
+	<view class="topbar">
+		<text class="title">好物</text>
+		<view class="top-actions">
+			<text class="action-link" bindtap="goToCart">购物车</text>
+			<text class="action-link" bindtap="goToOrder">订单</text>
+		</view>
+	</view>
+
+	<scroll-view class="category-scroll" scroll-x="true" enable-flex="true">
+		<view class="category-list">
+			<text class="category-item {{currentCategory === item ? 'category-item-active' : ''}}" wx:for="{{categories}}" wx:key="*this" data-name="{{item}}" bindtap="chooseCategory">{{item}}</text>
+		</view>
+	</scroll-view>
+
+	<view class="goods-list">
+		<block wx:for="{{goodsList}}" wx:key="id">
+			<view class="goods-card" wx:if="{{currentCategory === '全部' || currentCategory === item.category}}">
+				<view class="goods-main">
+					<view>
+						<text class="goods-name">{{item.name}}</text>
+						<text class="goods-desc">{{item.desc}}</text>
+					</view>
+					<text class="goods-category">{{item.category}}</text>
+				</view>
+				<view class="goods-footer">
+					<text class="goods-price">¥{{item.price}}</text>
+					<button class="add-btn" size="mini" data-name="{{item.name}}" bindtap="addToCart">加入购物车</button>
+				</view>
+			</view>
+		</block>
+	</view>
+</view>
