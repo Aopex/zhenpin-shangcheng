@@ -3,6 +3,8 @@ package com.miniprogram.backend.domain.Controller;
 import com.miniprogram.backend.common.ApiResponse;
 import com.miniprogram.backend.common.PageResponse;
 import com.miniprogram.backend.common.RequireAdmin;
+import com.miniprogram.backend.common.UserContext;
+import com.miniprogram.backend.domain.Entity.UpdateProfileRequest;
 import com.miniprogram.backend.domain.Entity.UserDTO;
 import com.miniprogram.backend.domain.Service.UserService;
 import jakarta.validation.Valid;
@@ -58,6 +60,29 @@ public class UserController {
         }
         
         UserDTO user = userService.createUser(userDTO);
+        return ResponseEntity.ok(ApiResponse.success(user));
+    }
+    
+    // 获取当前登录用户信息
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserDTO>> getCurrentUser() {
+        Long userId = UserContext.getCurrentUserId();
+        UserDTO user = userService.getUserById(userId);
+        return ResponseEntity.ok(ApiResponse.success(user));
+    }
+    
+    // 更新当前登录用户资料
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserDTO>> updateCurrentUser(@Valid @RequestBody UpdateProfileRequest request) {
+        Long userId = UserContext.getCurrentUserId();
+        
+        UserDTO userDTO = new UserDTO();
+        userDTO.setNickname(request.getNickname());
+        userDTO.setAvatarUrl(request.getAvatarUrl());
+        userDTO.setGender(request.getGender());
+        userDTO.setPhone(request.getPhone());
+        
+        UserDTO user = userService.updateUser(userId, userDTO);
         return ResponseEntity.ok(ApiResponse.success(user));
     }
     

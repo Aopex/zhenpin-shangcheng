@@ -150,6 +150,17 @@
   font-weight: 500;
   color: var(--text-main);
 }
+.logout-item {
+  justify-content: space-between;
+}
+.logout-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+.logout-arrow {
+  color: var(--primary);
+}
 
 /* 覆盖button默认样式 */
 .plain-btn {

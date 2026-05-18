@@ -43,11 +43,11 @@ Page({
     this.setData({ gender: Number(e.currentTarget.dataset.value || 0) })
   },
 
-  saveProfile() {
+  async saveProfile() {
     if (this.data.saving) return
 
     this.setData({ saving: true })
-    const result = api.updateUserProfile({
+    const result = await api.updateUserProfile({
       nickname: this.data.nickname,
       phone: this.data.phone,
       gender: this.data.gender

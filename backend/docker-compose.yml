@@ -88,6 +88,8 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationAndValidationWhichShouldBeLongEnough}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      WECHAT_APPID: ${WECHAT_APPID:-}
+      WECHAT_SECRET: ${WECHAT_SECRET:-}
       TZ: Asia/Shanghai
     ports:
       - "8080:8080"

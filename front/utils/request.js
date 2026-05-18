@@ -1,8 +1,45 @@
 const BASE_URL = 'http://localhost:8080'
+const LOGIN_URL = '/api/auth/wx-login'
 
 function buildUrl(url) {
   if (/^https?:\/\//.test(url)) return url
   return `${BASE_URL}${url.startsWith('/') ? url : `/${url}`}`
+}
+
+function isLoginRequest(url) {
+  return buildUrl(url) === buildUrl(LOGIN_URL)
+}
+
+function getStoredToken() {
+  if (typeof wx === 'undefined' || !wx.getStorageSync) return ''
+  try {
+    return wx.getStorageSync('token') || ''
+  } catch (err) {
+    return ''
+  }
+}
+
+function clearAuthStorage() {
+  if (typeof wx === 'undefined') return
+  try {
+    wx.removeStorageSync('token')
+    wx.removeStorageSync('userId')
+    wx.removeStorageSync('userInfo')
+  } catch (err) {
+    // 忽略本地存储清理失败，避免掩盖真实接口错误。
+  }
+}
+
+function buildHeaders(url, header) {
+  const headers = {
+    'content-type': 'application/json',
+    ...header
+  }
+  const token = getStoredToken()
+  if (token && !headers.Authorization && !isLoginRequest(url)) {
+    headers.Authorization = `Bearer ${token}`
+  }
+  return headers
 }
 
 function request(options = {}) {
@@ -18,15 +55,18 @@ function request(options = {}) {
       url: buildUrl(url),
       method,
       data,
-      header: {
-        'content-type': 'application/json',
-        ...header
-      },
+      header: buildHeaders(url, header),
       success(res) {
         const body = res.data || {}
         if (res.statusCode >= 200 && res.statusCode < 300 && body.code === 200) {
           resolve(body.data)
           return
+        }
+        if (res.statusCode === 401 || body.code === 401) {
+          clearAuthStorage()
+          if (typeof wx !== 'undefined' && wx.showToast) {
+            wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
+          }
         }
         reject(new Error(body.message || `请求失败：${res.statusCode}`))
       },
@@ -39,5 +79,6 @@ function request(options = {}) {
 
 module.exports = {
   BASE_URL,
-  request
+  request,
+  clearAuthStorage
 }

@@ -69,6 +69,8 @@ public class UserSessionService {
         response.setOpenid(user.getOpenid());
         response.setNickname(user.getNickname());
         response.setAvatarUrl(user.getAvatarUrl());
+        response.setPhone(user.getPhone());
+        response.setGender(user.getGender());
         response.setToken(jwtToken);
         response.setSessionKey(sessionKey);
         

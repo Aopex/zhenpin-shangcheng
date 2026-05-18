@@ -9,6 +9,8 @@ public class LoginResponse {
     private String openid;
     private String nickname;
     private String avatarUrl;
+    private String phone;
+    private Integer gender;
     private String token;
     private String sessionKey;
     
@@ -54,6 +56,22 @@ public class LoginResponse {
     
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public Integer getGender() {
+        return gender;
+    }
+    
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
     
     public String getToken() {

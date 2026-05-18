@@ -916,26 +916,78 @@ function deleteOrder(orderId) {
 
 // ==================== 个人中心 ====================
 
+function _normalizeLoginUser(loginData = {}) {
+  const userId = loginData.userId || loginData.id || 0
+  return {
+    id: userId,
+    userId,
+    openid: loginData.openid || '',
+    nickname: loginData.nickname || '微信用户',
+    avatar_url: loginData.avatarUrl || loginData.avatar_url || '',
+    avatarUrl: loginData.avatarUrl || loginData.avatar_url || '',
+    token: loginData.token || '',
+    phone: loginData.phone || '',
+    gender: loginData.gender || 0,
+    isLoggedIn: !!loginData.token
+  }
+}
+
+function _getStoredUserInfo() {
+  if (typeof wx === 'undefined' || !wx.getStorageSync) return null
+  try {
+    const token = wx.getStorageSync('token')
+    const userInfo = wx.getStorageSync('userInfo')
+    if (!token || !userInfo) return null
+    return {
+      ...userInfo,
+      token,
+      isLoggedIn: true
+    }
+  } catch (err) {
+    return null
+  }
+}
+
+function _setLoginStorage(userInfo) {
+  if (typeof wx === 'undefined' || !wx.setStorageSync) return
+  wx.setStorageSync('token', userInfo.token)
+  wx.setStorageSync('userId', userInfo.userId || userInfo.id)
+  wx.setStorageSync('userInfo', userInfo)
+}
+
+function _getStoredToken() {
+  if (typeof wx === 'undefined' || !wx.getStorageSync) return ''
+  try {
+    return wx.getStorageSync('token') || ''
+  } catch (err) {
+    return ''
+  }
+}
+
 /**
  * 获取当前用户信息
  * @returns {object}
  */
 function getUserInfo() {
-  const u = db.user.find(user => user.id === 1)
-  if (!u) return { id: 0, nickname: '未登录', avatar_url: '', phone: '', openid: '', isLoggedIn: false }
-  return {
-    id: u.id,
-    openid: u.openid,
-    union_id: u.union_id,
-    nickname: u.nickname,
-    avatar_url: u.avatar_url,
-    phone: u.phone,
-    gender: u.gender,
-    status: u.status,
-    created_at: u.created_at,
-    updated_at: u.updated_at,
-    isLoggedIn: true
-  }
+  const storedUserInfo = _getStoredUserInfo()
+  if (storedUserInfo) return storedUserInfo
+  return { id: 0, userId: 0, nickname: '', avatar_url: '', avatarUrl: '', phone: '', openid: '', isLoggedIn: false }
+}
+
+/**
+ * 微信真实登录
+ * @param {{ code: string, nickname?: string, avatarUrl?: string, gender?: number }} payload
+ * @returns {Promise<object>}
+ */
+async function wxLogin(payload = {}) {
+  const loginData = await request({
+    url: '/api/auth/wx-login',
+    method: 'POST',
+    data: payload
+  })
+  const userInfo = _normalizeLoginUser(loginData)
+  _setLoginStorage(userInfo)
+  return userInfo
 }
 
 /**
@@ -954,10 +1006,7 @@ function mockLogin() {
  * @param {{ nickname?: string, phone?: string, gender?: number|string }} profile
  * @returns {{ success: boolean, message?: string, userInfo?: object }}
  */
-function updateUserProfile(profile = {}) {
-  const u = db.user.find(user => user.id === 1)
-  if (!u) return { success: false, message: '用户不存在' }
-
+async function updateUserProfile(profile = {}) {
   const nickname = (profile.nickname || '').trim()
   const phone = (profile.phone || '').trim()
   const gender = Number(profile.gender)
@@ -965,15 +1014,37 @@ function updateUserProfile(profile = {}) {
   if (!nickname) return { success: false, message: '请输入用户名' }
   if (nickname.length > 16) return { success: false, message: '用户名最多16个字' }
   if (!phone) return { success: false, message: '请输入手机号' }
-  if (!/^[0-9*+\-\s]{6,20}$/.test(phone)) return { success: false, message: '手机号格式不正确' }
+  if (!/^1[3-9]\d{9}$/.test(phone)) return { success: false, message: '手机号格式不正确' }
   if (![1, 2].includes(gender)) return { success: false, message: '请选择性别' }
 
-  u.nickname = nickname
-  u.phone = phone
-  u.gender = gender
-  u.updated_at = _now()
+  const token = _getStoredToken()
+  if (!token) return { success: false, message: '请先登录' }
 
-  return { success: true, userInfo: getUserInfo() }
+  try {
+    const updatedUser = await request({
+      url: '/api/users/me',
+      method: 'PUT',
+      data: { nickname, phone, gender }
+    })
+    const currentUserInfo = getUserInfo()
+    const userInfo = {
+      ...currentUserInfo,
+      id: updatedUser.id || currentUserInfo.id,
+      userId: updatedUser.id || updatedUser.userId || currentUserInfo.userId,
+      openid: updatedUser.openid || currentUserInfo.openid,
+      nickname: updatedUser.nickname || nickname,
+      avatar_url: updatedUser.avatarUrl || updatedUser.avatar_url || currentUserInfo.avatar_url || '',
+      avatarUrl: updatedUser.avatarUrl || updatedUser.avatar_url || currentUserInfo.avatarUrl || '',
+      phone: updatedUser.phone || phone,
+      gender: updatedUser.gender || gender,
+      token,
+      isLoggedIn: true
+    }
+    _setLoginStorage(userInfo)
+    return { success: true, userInfo }
+  } catch (err) {
+    return { success: false, message: err.message || '保存失败' }
+  }
 }
 
 /**
@@ -1038,6 +1109,7 @@ module.exports = {
   setDefaultAddress,
   // 个人中心
   getUserInfo,
+  wxLogin,
   mockLogin,
   updateUserProfile,
   getOrderStats

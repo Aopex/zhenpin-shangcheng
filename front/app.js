@@ -6,12 +6,15 @@ App({
     logs.unshift(Date.now())
     wx.setStorageSync('logs', logs)
 
-    // 登录
-    wx.login({
-      success: res => {
-        // 发送 res.code 到后台换取 openId, sessionKey, unionId
+    const userInfo = wx.getStorageSync('userInfo')
+    const token = wx.getStorageSync('token')
+    if (userInfo && token) {
+      this.globalData.userInfo = {
+        ...userInfo,
+        token,
+        isLoggedIn: true
       }
-    })
+    }
   },
   globalData: {
     userInfo: null

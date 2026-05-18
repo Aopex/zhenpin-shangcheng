@@ -1,10 +1,12 @@
 // pages/tabs/mine/index.js
 const api = require('../../../utils/api')
+const { clearAuthStorage } = require('../../../utils/request')
 
 Page({
   data: {
     userInfo: {},
-    orderStats: {}
+    orderStats: {},
+    loginLoading: false
   },
 
   onShow() {
@@ -18,14 +20,33 @@ Page({
   },
 
   handleLogin() {
-    const result = api.mockLogin();
-    if (!result.success) {
-      wx.showToast({ title: result.message || '登录失败', icon: 'none' });
-      return;
-    }
-    getApp().globalData.userInfo = result.userInfo;
-    this.setData({ userInfo: result.userInfo });
-    wx.showToast({ title: '登录成功', icon: 'success' });
+    if (this.data.loginLoading) return;
+
+    this.setData({ loginLoading: true });
+    wx.login({
+      success: async (res) => {
+        if (!res.code) {
+          this.setData({ loginLoading: false });
+          wx.showToast({ title: res.errMsg || '获取登录凭证失败', icon: 'none' });
+          return;
+        }
+
+        try {
+          const userInfo = await api.wxLogin({ code: res.code });
+          getApp().globalData.userInfo = userInfo;
+          this.setData({ userInfo });
+          wx.showToast({ title: '登录成功', icon: 'success' });
+        } catch (err) {
+          wx.showToast({ title: err.message || '登录失败', icon: 'none' });
+        } finally {
+          this.setData({ loginLoading: false });
+        }
+      },
+      fail: (err) => {
+        this.setData({ loginLoading: false });
+        wx.showToast({ title: err.errMsg || '获取登录凭证失败', icon: 'none' });
+      }
+    });
   },
 
   toOrderList(e) {
@@ -53,5 +74,15 @@ Page({
     wx.navigateTo({
       url: '/pages/user/about/index'
     });
+  },
+
+  handleLogout() {
+    clearAuthStorage();
+    getApp().globalData = getApp().globalData || {};
+    getApp().globalData.userInfo = null;
+    this.setData({
+      userInfo: api.getUserInfo()
+    });
+    wx.showToast({ title: '已退出登录', icon: 'none' });
   }
 });

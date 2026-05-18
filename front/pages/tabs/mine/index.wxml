@@ -67,6 +67,11 @@
         <text class="menu-text">关于我们</text>
         <text class="arrow-icon">›</text>
       </view>
+
+      <view wx:if="{{userInfo.isLoggedIn}}" class="menu-item logout-item" bindtap="handleLogout" hover-class="active-feedback">
+        <text class="logout-text">退出登录</text>
+        <text class="arrow-icon logout-arrow">›</text>
+      </view>
     </view>
   </view>
 

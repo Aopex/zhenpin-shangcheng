@@ -69,3 +69,4 @@ nbdist/
 # Python cache
 __pycache__/
 *.py[cod]
+.playwright-mcp/
