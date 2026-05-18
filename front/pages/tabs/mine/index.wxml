@@ -1,0 +1,73 @@
+<!--pages/tabs/mine/index.wxml-->
+<view class="container mine-container">
+  
+  <!-- 头部信息区 (Asymmetric & Sleek) -->
+  <view class="user-info">
+    <image class="user-avatar" src="{{userInfo.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=140&h=140&fit=crop&auto=format'}}" mode="aspectFill"></image>
+    <view class="user-detail" bindtap="handleLogin">
+      <text class="user-name">{{userInfo.nickname || '点击登录'}}</text>
+      <view class="user-meta">
+        <text class="user-phone" wx:if="{{userInfo.isLoggedIn}}">{{userInfo.phone}}</text>
+        <text class="user-desc" wx:else>登录后享受更多权益</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-group">
+    <!-- 订单快捷区 (Premium Panel) -->
+    <view class="order-panel">
+      <view class="panel-header" bindtap="toOrderList" data-status="ALL" hover-class="active-feedback">
+        <text class="panel-title">我的订单</text>
+        <view class="panel-more">
+          <text class="more-text">全部</text>
+          <text class="arrow-icon">›</text>
+        </view>
+      </view>
+      <view class="order-icons">
+        <view class="icon-item" bindtap="toOrderList" data-status="UNPAID" hover-class="active-feedback">
+          <image class="icon-img" src="/assets/icon/mine/待付款.svg" mode="aspectFit"></image>
+          <text class="icon-text">待付款</text>
+        </view>
+        <view class="icon-item" bindtap="toOrderList" data-status="UNSHIPPED" hover-class="active-feedback">
+          <image class="icon-img" src="/assets/icon/mine/待发货.svg" mode="aspectFit"></image>
+          <text class="icon-text">待发货</text>
+        </view>
+        <view class="icon-item" bindtap="toOrderList" data-status="UNRECEIVED" hover-class="active-feedback">
+          <image class="icon-img" src="/assets/icon/mine/待收货.svg" mode="aspectFit"></image>
+          <text class="icon-text">待收货</text>
+        </view>
+        <view class="icon-item" bindtap="toOrderList" data-status="FINISHED" hover-class="active-feedback">
+          <image class="icon-img" src="/assets/icon/mine/已完成.svg" mode="aspectFit"></image>
+          <text class="icon-text">已完成</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-group">
+    <!-- 列表菜单区 (Clean List) -->
+    <view class="menu-list">
+      <view class="menu-item" bindtap="toProfileEdit" hover-class="active-feedback">
+        <text class="menu-text">编辑资料</text>
+        <text class="arrow-icon">›</text>
+      </view>
+
+      <view class="menu-item" bindtap="toAddressManage" hover-class="active-feedback">
+        <text class="menu-text">地址管理</text>
+        <text class="arrow-icon">›</text>
+      </view>
+      
+      <!-- 联系客服按钮 -->
+      <button class="menu-item plain-btn" open-type="contact" hover-class="active-feedback">
+        <text class="menu-text">联系客服</text>
+        <text class="arrow-icon">›</text>
+      </button>
+
+      <view class="menu-item" bindtap="toAbout" hover-class="active-feedback">
+        <text class="menu-text">关于我们</text>
+        <text class="arrow-icon">›</text>
+      </view>
+    </view>
+  </view>
+
+</view>

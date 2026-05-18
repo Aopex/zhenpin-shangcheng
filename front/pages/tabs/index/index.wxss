@@ -1,0 +1,227 @@
+/* pages/tabs/index/index.wxss */
+.home-container {
+  padding-bottom: 20rpx;
+  background-color: #F7F7F7; /* Neutral premium background */
+}
+
+/* Base Interactions */
+.active-feedback {
+  transform: scale(0.96);
+  opacity: 0.85;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* 顶部搜索框 (Glassmorphism Sticky) */
+.search-bar {
+  padding: 16rpx 32rpx;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 247, 247, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.search-input-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 80rpx;
+  background-color: #FFFFFF;
+  border-radius: 40rpx;
+  padding: 0 12rpx 0 32rpx;
+  box-shadow: 0 4rpx 24rpx -6rpx rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.search-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 16rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 100%;
+  font-size: 28rpx;
+  color: #1A1A1A;
+  border: none;
+  outline: none;
+}
+.search-clear {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  line-height: 1;
+  margin-left: 12rpx;
+  transition: transform 0.2s ease;
+}
+.search-clear:active {
+  transform: scale(0.9);
+}
+.search-action {
+  height: 56rpx;
+  padding: 0 24rpx;
+  margin-left: 16rpx;
+  border-radius: 28rpx;
+  background: var(--text-main);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.search-action:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+.search-placeholder {
+  color: #B3B3B3;
+  font-weight: 400;
+}
+
+/* 轮播图区 (Bento Hero) */
+.hero-section {
+  padding: 24rpx 32rpx;
+}
+.banner-swiper {
+  height: 320rpx;
+  border-radius: 32rpx;
+  overflow: hidden;
+  background-color: #EAEAEA;
+  box-shadow: 0 20rpx 40rpx -16rpx rgba(0,0,0,0.08);
+  /* Force rounded corners on iOS */
+  transform: translateY(0); 
+}
+.banner-image {
+  width: 100%;
+  height: 100%;
+  background-color: #EAEAEA;
+}
+
+/* 金刚区 (Bento Nav) */
+.grid-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32rpx 0;
+  padding: 16rpx 0 32rpx;
+  margin: 0 32rpx 32rpx;
+  border-radius: 32rpx;
+  background: transparent;
+}
+.grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  transition: transform 0.3s ease;
+}
+.grid-icon-wrap {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 40rpx;
+  background-color: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16rpx 32rpx -12rpx rgba(0,0,0,0.04);
+}
+.grid-icon {
+  width: 52rpx;
+  height: 52rpx;
+}
+.grid-text {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
+/* 商品信息流：瀑布流 (Premium Cards) */
+.section-header {
+  padding: 0 32rpx 24rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+}
+.section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  letter-spacing: 0.5px;
+}
+.section-subtitle {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #999;
+  font-family: 'Bahnschrift', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24rpx;
+  padding: 0 32rpx 40rpx;
+}
+.product-card {
+  background-color: #FFFFFF;
+  border-radius: 32rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16rpx 40rpx -20rpx rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.02);
+  transition: transform 0.3s ease;
+}
+.product-img {
+  width: 100%;
+  height: 340rpx;
+  background-color: #F2F2F2;
+}
+.product-info {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.product-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 40rpx;
+  color: #1A1A1A;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+  margin-top: auto;
+}
+.price-symbol {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--primary);
+  font-family: 'Bahnschrift', monospace;
+}
+.product-price {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Bahnschrift', monospace;
+  letter-spacing: -0.5px;
+}

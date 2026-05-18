@@ -1,0 +1,239 @@
+/* pages/tabs/order/index.wxss */
+.order-container {
+  background-color: var(--bg-page);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部状态栏 - Glassmorphism */
+.tabs {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  height: 96rpx;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4rpx 20rpx -10rpx rgba(0,0,0,0.05); /* Subtle depth */
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.tab-text {
+  font-size: 28rpx;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.tab-item.active .tab-text {
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 30rpx; /* Slight bump for active */
+}
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 12rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32rpx;
+  height: 6rpx;
+  background-color: var(--text-main);
+  border-radius: 6rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+}
+
+/* 订单列表区 */
+.order-list {
+  flex: 1;
+  min-height: 0;
+  padding: 0 0 0;
+  box-sizing: border-box;
+}
+
+/* 订单卡片 - Bento style */
+.order-card {
+  margin: 0 32rpx 32rpx;
+  border-radius: 32rpx;
+  background: var(--bg-card);
+  padding: 32rpx;
+  box-shadow: 0 10rpx 40rpx -15rpx rgba(0,0,0,0.04);
+}
+.order-card:first-child {
+  margin-top: 32rpx;
+}
+.order-card:last-child {
+  margin-bottom: 32rpx;
+}
+
+/* 卡片头部 */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid rgba(235, 229, 223, 0.4);
+}
+.order-no {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-family: 'Bahnschrift', monospace;
+}
+.order-status {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.order-status.status-primary {
+  color: var(--primary); /* Keep primary for unpaid to draw attention */
+}
+.order-status.status-accent {
+  color: var(--text-main);
+}
+
+/* 卡片商品区域 */
+.order-goods {
+  padding: 32rpx 0;
+}
+.single-good {
+  display: flex;
+}
+.good-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 24rpx;
+  background-color: var(--bg-input);
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+.good-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.good-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--text-main);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 44rpx;
+  letter-spacing: -0.5rpx;
+}
+.good-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.good-price {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Bahnschrift', monospace;
+}
+.good-count {
+  font-size: 26rpx;
+  color: var(--text-muted);
+  font-family: 'Bahnschrift', monospace;
+}
+
+/* 多图横滑 */
+.multi-goods {
+  width: 100%;
+}
+.goods-scroll-wrap {
+  display: flex;
+  flex-wrap: nowrap;
+}
+.good-img-small {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 20rpx;
+  background-color: var(--bg-input);
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 卡片底部 */
+.order-footer {
+  border-top: 1rpx solid rgba(235, 229, 223, 0.4);
+  padding-top: 32rpx;
+}
+.order-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  margin-bottom: 32rpx;
+}
+.total-text {
+  font-size: 26rpx;
+  color: var(--text-muted);
+  margin-right: 8rpx;
+}
+.total-price {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Bahnschrift', monospace;
+}
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+}
+.btn {
+  padding: 0 40rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 0; /* Reset since we use gap now */
+}
+.btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+.btn-default {
+  border: 2rpx solid rgba(235, 229, 223, 0.8);
+  color: var(--text-main);
+  background-color: transparent;
+}
+.btn-primary {
+  background-color: var(--text-main);
+  color: #FFFFFF;
+  box-shadow: 0 8rpx 16rpx -6rpx rgba(0,0,0,0.15); /* Floating elevation */
+}
+
+/* 空状态 */
+.empty-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 160rpx 0;
+}
+.empty-tip text {
+  color: var(--text-muted);
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 底部占位：滑到底部才露出 */
+.list-tail-spacer {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}

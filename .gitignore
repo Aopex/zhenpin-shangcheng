@@ -1,0 +1,64 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Local AI/tooling state
+.claude/
+.kilo/
+
+# Out of scope for this repository
+admin-server/
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+front/project.private.config.json
+
+# Dependencies
+node_modules/
+miniprogram_npm/
+.venv/
+venv/
+
+# Build outputs
+target/
+build/
+dist/
+out/
+coverage/
+
+# Logs and runtime files
+logs/
+*.log
+backend/logs/
+backend/logs-fix-backup/
+
+# Database dumps and generated backups
+backend/database/backups/
+*.sql.gz
+*.dump
+
+# Uploaded/static runtime files mounted by Docker
+pics/
+
+# Java / Maven
+.mvn/wrapper/maven-wrapper.jar
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+backend/

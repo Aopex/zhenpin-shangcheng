@@ -1,0 +1,76 @@
+<!--pages/tabs/index/index.wxml-->
+<view class="container home-container">
+  
+  <!-- 顶部搜索框 (Glassmorphism & Floating) -->
+  <view class="search-bar">
+    <view class="search-input-box" hover-class="active-feedback">
+      <image class="search-icon" src="/assets/icon/home/search.png"></image>
+      <input
+        class="search-input"
+        value="{{searchKeyword}}"
+        placeholder="搜索商品..."
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="submitSearch"
+      />
+      <view class="search-clear" wx:if="{{searchKeyword}}" catchtap="clearSearch">×</view>
+      <view class="search-action" catchtap="submitSearch">搜索</view>
+    </view>
+  </view>
+
+  <!-- 轮播图区 (Bento Hero) -->
+  <view class="hero-section">
+    <swiper class="banner-swiper" 
+            indicator-dots="false" 
+            autoplay="true" 
+            circular="true">
+      <block wx:for="{{banners}}" wx:key="id">
+        <swiper-item>
+          <image
+            class="banner-image"
+            src="{{item.imgUrl}}"
+            mode="aspectFill"
+            bindtap="toBannerProduct"
+            data-no="{{item.linkValue}}"
+          ></image>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
+  <!-- 金刚区 (Bento Nav) -->
+  <view class="grid-nav">
+    <block wx:for="{{categories}}" wx:key="id">
+      <view class="grid-item" hover-class="active-feedback" bindtap="switchToShop" data-id="{{item.id}}">
+        <view class="grid-icon-wrap">
+          <image class="grid-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
+        <text class="grid-text">{{item.name}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 商品信息流：瀑布流 (Premium Cards) -->
+  <view class="section-header">
+    <text class="section-title">发现好物</text>
+    <text class="section-subtitle">Discover</text>
+  </view>
+  <view class="product-list">
+    <block wx:for="{{products}}" wx:key="id">
+      <view class="product-card" bind:tap="toDetail" data-no="{{item.no}}" hover-class="active-feedback">
+        <image class="product-img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <text class="product-title">{{item.title}}</text>
+          <view class="price-row">
+            <text class="price-symbol">¥</text>
+            <text class="product-price">{{item.price}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 底部安全距离 -->
+  <view class="safe-area-bottom"></view>
+</view>

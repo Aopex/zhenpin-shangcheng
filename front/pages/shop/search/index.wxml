@@ -1,0 +1,139 @@
+<view class="container search-page">
+  <view class="search-top">
+    <view class="search-box">
+      <image class="search-icon" src="/assets/icon/home/search.png" mode="aspectFit"></image>
+      <input
+        class="search-input"
+        value="{{inputKeyword}}"
+        placeholder="搜索商品名称或编号"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bindinput="onKeywordInput"
+        bindconfirm="submitSearch"
+      />
+      <view class="clear-btn" wx:if="{{inputKeyword}}" catchtap="clearKeyword">×</view>
+    </view>
+    <view class="search-submit" bindtap="submitSearch" hover-class="active-feedback">搜索</view>
+  </view>
+
+  <view class="sort-bar">
+    <view class="sort-item {{sortType === 'comprehensive' ? 'active' : ''}}" data-type="comprehensive" bindtap="switchSort">综合</view>
+    <view class="sort-item {{sortType === 'latest' ? 'active' : ''}}" data-type="latest" bindtap="switchSort">最新</view>
+    <view class="sort-item {{sortType === 'priceAsc' || sortType === 'priceDesc' ? 'active' : ''}}" bindtap="togglePriceSort">
+      <text>价格</text>
+      <text class="price-arrow">{{sortType === 'priceAsc' ? '↑' : (sortType === 'priceDesc' ? '↓' : '↕')}}</text>
+    </view>
+    <view class="sort-item {{sortType === 'sales' ? 'active' : ''}}" data-type="sales" bindtap="switchSort">销量</view>
+    <view class="filter-entry {{filterSummary.length > 0 ? 'active' : ''}}" bindtap="openFilter" hover-class="active-feedback">
+      <text>筛选</text>
+      <text class="filter-dot" wx:if="{{filterSummary.length > 0}}">{{filterSummary.length}}</text>
+    </view>
+  </view>
+
+  <view class="chips-row" wx:if="{{filterSummary.length > 0}}">
+    <scroll-view class="chips-scroll" scroll-x>
+      <view class="chips-inner">
+        <block wx:for="{{filterSummary}}" wx:key="type">
+          <view class="filter-chip" data-type="{{item.type}}" bindtap="clearFilter">
+            <text>{{item.label}}</text>
+            <text class="chip-close">×</text>
+          </view>
+        </block>
+        <view class="filter-chip clear-all" bindtap="clearAllFilters">清空筛选</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="result-head">
+    <view>
+      <text class="result-title">{{keyword ? '搜索结果' : '全部商品'}}</text>
+      <text class="result-keyword" wx:if="{{keyword}}">“{{keyword}}”</text>
+    </view>
+    <text class="result-count">{{loading ? '检索中' : resultCountText}}</text>
+  </view>
+
+  <view class="skeleton-grid" wx:if="{{loading}}">
+    <block wx:for="{{skeletons}}" wx:key="*this">
+      <view class="skeleton-card">
+        <view class="skeleton-img"></view>
+        <view class="skeleton-line wide"></view>
+        <view class="skeleton-line short"></view>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty-state" wx:elif="{{products.length === 0}}">
+    <view class="empty-mark"></view>
+    <text class="empty-title">没有找到相关商品</text>
+    <text class="empty-desc">换个关键词，或清空筛选条件再试。</text>
+    <view class="empty-btn" bindtap="clearAllFilters" hover-class="active-feedback">清空筛选</view>
+  </view>
+
+  <view class="product-grid" wx:else>
+    <block wx:for="{{products}}" wx:key="id">
+      <view class="product-card" bindtap="toDetail" data-no="{{item.no}}" hover-class="active-feedback">
+        <image class="product-img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <text class="category-name">{{item.categoryName}}</text>
+          <text class="product-title">{{item.title}}</text>
+          <view class="meta-row">
+            <text>销量 {{item.sales}}</text>
+            <text>库存 {{item.stock}}</text>
+          </view>
+          <view class="price-row">
+            <text class="price-symbol">¥</text>
+            <text class="price-num">{{item.price}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="bottom-spacer"></view>
+
+  <view wx:if="{{filterShow}}" class="filter-mask {{filterActive ? 'show' : ''}}" catchtap="closeFilter">
+    <view class="filter-panel {{filterActive ? 'show' : ''}}" catchtap="stopTap">
+      <view class="filter-head">
+        <view>
+          <text class="filter-title">筛选商品</text>
+          <text class="filter-sub">按分类、价格和库存缩小范围</text>
+        </view>
+        <view class="filter-close" bindtap="closeFilter" hover-class="active-feedback">×</view>
+      </view>
+
+      <view class="filter-section">
+        <text class="filter-label">分类</text>
+        <view class="category-tags">
+          <view class="category-tag {{draftCategoryId === 0 ? 'active' : ''}}" data-id="0" bindtap="selectDraftCategory">全部</view>
+          <block wx:for="{{categories}}" wx:key="id">
+            <view class="category-tag {{draftCategoryId === item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="selectDraftCategory">{{item.name}}</view>
+          </block>
+        </view>
+      </view>
+
+      <view class="filter-section">
+        <text class="filter-label">价格区间</text>
+        <view class="price-filter-row">
+          <input class="price-input" type="digit" value="{{draftMinPrice}}" placeholder="最低价" placeholder-class="filter-placeholder" bindinput="onMinPriceInput" />
+          <view class="price-divider"></view>
+          <input class="price-input" type="digit" value="{{draftMaxPrice}}" placeholder="最高价" placeholder-class="filter-placeholder" bindinput="onMaxPriceInput" />
+        </view>
+      </view>
+
+      <view class="stock-row" bindtap="toggleDraftStock" hover-class="active-feedback">
+        <view>
+          <text class="stock-title">仅看有货</text>
+          <text class="stock-desc">使用 product.stock 判断商品总库存</text>
+        </view>
+        <view class="switch-shell {{draftInStockOnly ? 'active' : ''}}">
+          <view class="switch-dot"></view>
+        </view>
+      </view>
+
+      <view class="filter-actions">
+        <view class="reset-btn" bindtap="resetDraftFilter" hover-class="active-feedback">重置</view>
+        <view class="confirm-btn" bindtap="confirmFilter" hover-class="active-feedback">确定</view>
+      </view>
+    </view>
+  </view>
+</view>

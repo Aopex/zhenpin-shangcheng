@@ -1,0 +1,100 @@
+<view class="container confirm-container">
+  <scroll-view class="confirm-scroll" scroll-y>
+    <view class="page-head">
+      <text class="page-title">确认订单</text>
+      <text class="page-kicker">ORDER CHECK</text>
+    </view>
+
+    <view class="address-card" bindtap="chooseAddress" hover-class="card-active-feedback">
+      <view class="address-mark"></view>
+      <view class="address-content" wx:if="{{address}}">
+        <view class="address-top">
+          <text class="address-name">{{address.name}}</text>
+          <text class="address-phone">{{address.phone}}</text>
+          <text class="default-badge" wx:if="{{address.is_default === 1}}">默认</text>
+        </view>
+        <text class="address-line">{{address.province}} {{address.city}} {{address.district}}</text>
+        <text class="address-detail">{{address.detail}}</text>
+      </view>
+      <view class="address-content" wx:else>
+        <text class="address-name">请选择收货地址</text>
+        <text class="address-line">订单需要写入 address_snapshot 地址快照</text>
+      </view>
+      <text class="arrow-icon">›</text>
+    </view>
+
+    <view class="section-label">商品快照</view>
+    <view class="goods-card">
+      <block wx:for="{{goods}}" wx:key="sku_id">
+        <view class="goods-item">
+          <image class="goods-img" src="{{item.image_url}}" mode="aspectFill"></image>
+          <view class="goods-info">
+            <text class="goods-title">{{item.title}}</text>
+            <text class="goods-spec">{{item.spec_text}}</text>
+          </view>
+          <view class="goods-price">
+            <text class="price-symbol">¥</text>
+            <text class="price-num">{{item.priceText}}</text>
+            <text class="goods-count">x{{item.quantity}}</text>
+            <text class="subtotal">¥{{item.subtotalText}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="section-label">订单信息</view>
+    <view class="summary-card">
+      <view class="summary-row">
+        <text class="summary-label">订单状态</text>
+        <text class="summary-value">{{orderStatusText}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">商品总件数</text>
+        <text class="summary-value">{{totalCount}} 件</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">商品金额</text>
+        <text class="summary-value">¥{{goodsAmountText}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">运费</text>
+        <text class="summary-value">¥{{freightAmountText}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">优惠金额</text>
+        <text class="summary-value discount">- ¥{{discountAmountText}}</text>
+      </view>
+      <view class="summary-row total-row">
+        <text class="summary-label">实付金额</text>
+        <text class="summary-total">¥{{totalAmountText}}</text>
+      </view>
+    </view>
+
+    <view class="remark-card">
+      <view class="remark-head">
+        <text class="remark-title">买家备注</text>
+        <text class="remark-count">{{remark.length}}/256</text>
+      </view>
+      <textarea
+        class="remark-input"
+        maxlength="256"
+        placeholder="选填，建议填写配送偏好或商品说明"
+        placeholder-class="remark-placeholder"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+      ></textarea>
+    </view>
+
+    <view class="bottom-scroll-spacer"></view>
+  </scroll-view>
+
+  <view class="submit-bar">
+    <view class="submit-content safe-area-bottom">
+      <view class="pay-copy">
+        <text class="pay-label">应付</text>
+        <text class="pay-amount">¥{{totalAmountText}}</text>
+      </view>
+      <view class="submit-btn" bindtap="submitOrder" hover-class="btn-active-feedback">提交订单</view>
+    </view>
+  </view>
+</view>

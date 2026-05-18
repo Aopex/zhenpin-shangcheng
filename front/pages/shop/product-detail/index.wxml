@@ -1,0 +1,134 @@
+<!--pages/shop/product-detail/index.wxml-->
+<view class="container detail-container">
+  
+  <scroll-view class="scroll-content" scroll-y>
+    
+    <!-- 1. 顶部商品主图：全屏宽度轮播图 -->
+    <view class="banner-box">
+      <swiper class="banner-swiper" bindchange="onSwiperChange" autoplay circular>
+        <block wx:for="{{productDetail.banners}}" wx:key="*this">
+          <swiper-item>
+            <image src="{{item}}" mode="aspectFill" class="banner-img" bindtap="previewImage" data-src="{{item}}"></image>
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="banner-indicator" wx:if="{{productDetail.banners.length > 0}}">
+        <text>{{currentBannerIndex + 1}}/{{productDetail.banners.length}}</text>
+      </view>
+    </view>
+
+    <!-- 2. 基本信息区 -->
+    <view class="card info-card">
+      <view class="price-row">
+        <view class="price-main">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">{{productDetail.price}}</text>
+        </view>
+        <text class="price-original">¥{{productDetail.originalPrice}}</text>
+      </view>
+      <view class="title-row">
+        <text class="product-title">{{productDetail.title}}</text>
+      </view>
+      <view class="sales-row">
+        <text class="sales-text">销量 {{productDetail.sales}}</text>
+        <text class="stock-text">库存 {{productDetail.stock}}</text>
+      </view>
+    </view>
+
+    <!-- 3. 规格选择区：SKU单元格 -->
+    <view class="card sku-card" bindtap="showSkuPopup">
+      <text class="sku-label">选择</text>
+      <text class="sku-value">{{displaySkuText || specNames}}</text>
+      <text class="arrow-icon">></text>
+    </view>
+
+    <!-- 4. 详情图文区 -->
+    <view class="detail-doc card">
+      <view class="detail-title">商品详情</view>
+      <view class="detail-images">
+        <block wx:for="{{productDetail.detailImages}}" wx:key="*this">
+          <image class="detail-img" src="{{item}}" mode="widthFix"></image>
+        </block>
+      </view>
+    </view>
+
+    <!-- 垫高区域，防遮挡 -->
+    <view class="safe-area-spacer"></view>
+
+  </scroll-view>
+
+  <!-- 5. 底部固定操作栏 -->
+  <view class="bottom-bar">
+    <view class="bottom-bar-content">
+      <view class="bar-left">
+        <button class="icon-btn plain-btn" open-type="contact">
+          <image class="icon-img" src="/assets/icon/product-detail/contact.png"></image>
+          <text class="icon-text">客服</text>
+        </button>
+        <view class="icon-btn" bindtap="goHome">
+          <image class="icon-img" src="/assets/icon/product-detail/home.png"></image>
+          <text class="icon-text">首页</text>
+        </view>
+        <view class="icon-btn cart-icon-area" bindtap="goCart">
+          <view class="badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+          <image class="icon-img" src="/assets/icon/product-detail/cart.png"></image>
+          <text class="icon-text">购物车</text>
+        </view>
+      </view>
+      
+      <view class="bar-right">
+        <view class="btn-action btn-add-cart" bindtap="addToCart">加入购物车</view>
+        <view class="btn-action btn-buy-now" bindtap="buyNow">立即购买</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 抛物线飞入购物车动画 -->
+  <image wx:if="{{flyImg}}" class="fly-img {{flyAnim}}" style="left:{{flyX}}px;top:{{flyY}}px;--dx:{{flyDx}}px;--dy:{{flyDy}}px;" src="{{flyImg}}" mode="aspectFill" bindanimationend="onFlyEnd"></image>
+
+  <!-- SKU 底部遮罩和弹窗 -->
+  <view class="sku-mask" wx:if="{{isSkuShow}}" bindtap="hideSkuPopup"></view>
+  <view class="sku-popup {{isSkuShow ? 'show' : ''}}">
+    <view class="sku-header">
+      <image class="sku-img" src="{{productDetail.banners[0]}}" mode="aspectFill"></image>
+      <view class="sku-header-info">
+        <view class="sku-price">¥{{productDetail.price}}</view>
+        <view class="sku-stock">库存 {{productDetail.stock}} 件</view>
+        <view class="sku-selected">已选: {{selectedSkuText || '请选择'}}</view>
+      </view>
+      <view class="sku-close" bindtap="hideSkuPopup">×</view>
+    </view>
+    
+    <scroll-view class="sku-body" scroll-y>
+      <!-- 动态规格选择 -->
+      <block wx:for="{{specGroups}}" wx:key="name" wx:for-index="gIdx">
+        <view class="sku-group">
+          <view class="sku-title">{{item.name}}</view>
+          <view class="sku-tags">
+            <block wx:for="{{item.values}}" wx:key="id" wx:for-index="vIdx">
+              <view class="sku-tag {{item.selected ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
+                    bindtap="selectSpecValue"
+                    data-group-index="{{gIdx}}"
+                    data-value-index="{{vIdx}}">{{item.value}}</view>
+            </block>
+          </view>
+        </view>
+      </block>
+      <!-- 数量选择 -->
+      <view class="sku-group sku-count-group">
+        <view class="sku-title">购买数量</view>
+        <view class="stepper">
+          <view class="stepper-btn" bindtap="minusBuyCount">-</view>
+          <view class="stepper-num">{{buyCount}}</view>
+          <view class="stepper-btn" bindtap="addBuyCount">+</view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 弹窗底部确定按钮 -->
+    <view class="sku-footer">
+      <view class="btn-action btn-sku-confirm" bindtap="confirmSku">确定</view>
+    </view>
+  </view>
+  
+</view>

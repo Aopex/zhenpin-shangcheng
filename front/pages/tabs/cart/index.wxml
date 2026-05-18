@@ -1,0 +1,94 @@
+<!--pages/tabs/cart/index.wxml-->
+<view class="container cart-container">
+  
+  <!-- 空状态显示 -->
+  <view class="empty-cart" wx:if="{{cartItems.length === 0}}">
+    <image class="empty-img" src="/assets/icon/cart/暂无内容.svg" mode="aspectFit"></image>
+    <text class="empty-text">购物车空空如也</text>
+    <view class="go-shopping-btn" bindtap="goShopping" hover-class="btn-active-feedback">去逛逛</view>
+  </view>
+
+  <!-- 购物车列表区域 -->
+  <view class="cart-list" wx:else>
+    <block wx:for="{{cartItems}}" wx:key="id">
+      <view class="cart-swipe-shell">
+        <view class="delete-action" bindtap="deleteCartItem" data-index="{{index}}" hover-class="delete-active-feedback">
+          <view class="delete-circle">
+            <view class="trash-lid"></view>
+            <view class="trash-can">
+              <view class="trash-line"></view>
+              <view class="trash-line"></view>
+            </view>
+          </view>
+        </view>
+
+        <view
+          class="card cart-item cart-swipe-content {{item.isSwiping ? 'is-swiping' : ''}}"
+          style="transform: translateX({{item.swipeX || 0}}rpx);"
+          bindtouchstart="onCartItemTouchStart"
+          bindtouchmove="onCartItemTouchMove"
+          bindtouchend="onCartItemTouchEnd"
+          bindtouchcancel="onCartItemTouchEnd"
+          data-index="{{index}}"
+        >
+          <!-- 选择框 -->
+          <view class="checkbox-box" bindtap="toggleCheck" data-index="{{index}}" hover-class="icon-active-feedback">
+            <!-- 自定义优化的选中状态图标 -->
+            <view class="checkbox-checked" wx:if="{{item.checked}}">
+              <view class="check-mark"></view>
+            </view>
+            <view class="checkbox-uncheck" wx:else></view>
+          </view>
+          
+          <!-- 商品图片 -->
+          <image class="item-img" src="{{item.imageUrl}}" mode="aspectFill" bindtap="toDetail" data-no="{{item.no}}"></image>
+          
+          <!-- 商品信息 -->
+          <view class="item-info">
+            <text class="item-title" bindtap="toDetail" data-no="{{item.no}}">{{item.title}}</text>
+            <text class="item-spec" wx:if="{{item.spec_values}}">{{item.spec_values}}</text>
+            
+            <view class="item-bottom">
+              <view class="item-price">
+                <!-- Premium typographic contrast -->
+                <text class="price-symbol">¥</text>
+                <text class="price-num">{{item.price}}</text>
+              </view>
+              
+              <!-- 数量加减器 (Bento style) -->
+              <view class="stepper">
+                <view class="stepper-btn {{item.count <= 1 ? 'disabled' : ''}}" bindtap="changeCount" data-index="{{index}}" data-type="minus" hover-class="icon-active-feedback">-</view>
+                <view class="stepper-num">{{item.count}}</view>
+                <view class="stepper-btn" bindtap="changeCount" data-index="{{index}}" data-type="add" hover-class="icon-active-feedback">+</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 底部结算栏 (Glassmorphism & Floating) -->
+  <view class="settlement-bar" wx:if="{{cartItems.length > 0}}">
+    <view class="settlement-content safe-area-bottom">
+      <view class="check-all" bindtap="toggleAllCheck" hover-class="icon-active-feedback">
+        <view class="checkbox-checked" wx:if="{{isAllChecked}}">
+          <view class="check-mark"></view>
+        </view>
+        <view class="checkbox-uncheck" wx:else></view>
+        <text class="check-all-text">全选</text>
+      </view>
+      
+      <view class="settlement-info">
+        <view class="total-box">
+          <text class="total-label">合计</text>
+          <text class="total-price">¥{{totalPrice}}</text>
+        </view>
+        <view class="checkout-btn {{totalCount > 0 ? '' : 'disabled'}}" bindtap="checkout" hover-class="btn-active-feedback">
+          结算 ({{totalCount}})
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

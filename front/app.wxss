@@ -1,0 +1,46 @@
+/**app.wxss**/
+page {
+  /* 全局 CSS 变量 */
+  --primary: #CB4042;       /* 主题色：赤丹 */
+  --bg-page: #F9F7F3;       /* 页面底色：暖宣白 */
+  --bg-card: #FFFFFF;       /* 卡片底色：纯白 */
+  --bg-input: #F2EFEA;      /* 输入框/占位底色 */
+  --text-main: #362E2D;     /* 正文主色 */
+  --text-muted: #968D8B;    /* 辅助文字 */
+  --border-light: #EBE5DF;  /* 分割线颜色 */
+
+  /* 基础页面样式 */
+  background-color: var(--bg-page);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 28rpx;
+  color: var(--text-main);
+}
+
+/* 默认内外边距清除与盒模型设置 */
+view, text, scroll-view, page, image, button, navigator, input {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 容器包裹层 */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page);
+}
+
+/* 现代卡片式基础组件 */
+.card {
+  background-color: var(--bg-card);
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 24rpx;
+}
+
+/* 安全底部距离，适配全面屏/iPhone X及以上 */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+} 

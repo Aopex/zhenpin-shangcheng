@@ -1,0 +1,60 @@
+<view class="container profile-page">
+  <view class="page-head">
+    <view class="head-copy">
+      <text class="page-title">编辑资料</text>
+      <text class="page-kicker">PROFILE</text>
+    </view>
+  </view>
+
+  <view class="form-shell">
+    <view class="form-panel">
+      <view class="field-block">
+        <text class="field-label">用户名</text>
+        <input
+          class="field-input"
+          value="{{nickname}}"
+          maxlength="16"
+          placeholder="请输入用户名"
+          placeholder-class="field-placeholder"
+          bindinput="onNicknameInput"
+        />
+        <text class="field-help">最多 16 个字</text>
+      </view>
+
+      <view class="field-block">
+        <text class="field-label">手机号</text>
+        <input
+          class="field-input"
+          value="{{phone}}"
+          maxlength="20"
+          placeholder="请输入手机号"
+          placeholder-class="field-placeholder"
+          bindinput="onPhoneInput"
+        />
+      </view>
+
+      <view class="field-block">
+        <text class="field-label">性别</text>
+        <view class="gender-segment">
+          <block wx:for="{{genderOptions}}" wx:key="value">
+            <view
+              class="gender-option {{gender === item.value ? 'active' : ''}}"
+              data-value="{{item.value}}"
+              bindtap="selectGender"
+              hover-class="active-feedback"
+              hover-stay-time="80"
+            >
+              {{item.label}}
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-actions">
+    <view class="save-btn {{saving ? 'disabled' : ''}}" bindtap="saveProfile" hover-class="active-feedback" hover-stay-time="80">
+      {{saving ? '保存中' : '保存'}}
+    </view>
+  </view>
+</view>

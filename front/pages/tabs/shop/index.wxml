@@ -1,0 +1,87 @@
+<!--pages/tabs/shop/index.wxml-->
+<view class="container shop-container">
+  <!-- 左侧分类导航 -->
+  <scroll-view class="category-sidebar" scroll-y>
+    <block wx:for="{{categories}}" wx:key="id">
+      <view class="category-item {{activeCategoryId === item.id ? 'active' : ''}}" 
+            bindtap="switchCategory" 
+            data-id="{{item.id}}">
+        <view class="indicator-bar"></view>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- 右侧商品列表 -->
+  <scroll-view class="product-list-view" scroll-y>
+    <view class="category-header">
+      <text class="category-title">{{activeCategoryName}}</text>
+    </view>
+    
+    <view class="product-list">
+      <block wx:for="{{currentProducts}}" wx:key="id">
+        <view class="product-item" bindtap="toDetail" data-no="{{item.no}}" hover-class="product-active-feedback">
+          <image class="product-img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+          <view class="product-info">
+            <text class="product-title">{{item.title}}</text>
+            <view class="product-bottom">
+              <view class="product-price">
+                <text class="price-symbol">¥</text>
+                <text class="price-num">{{item.price}}</text>
+              </view>
+              <view class="add-cart-btn" catchtap="addToCart" data-no="{{item.no}}" data-img="{{item.imageUrl}}" hover-class="icon-active-feedback">
+                <text class="plus-icon">+</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="empty-tip" wx:if="{{currentProducts.length === 0}}">
+        <text>该分类下暂无商品</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 抛物线飞入购物车动画 -->
+  <image wx:if="{{flyImg}}" class="fly-img {{flyAnim}}" style="left:{{flyX}}px;top:{{flyY}}px;--dx:{{flyDx}}px;--dy:{{flyDy}}px;" src="{{flyImg}}" mode="aspectFill" bindanimationend="onFlyEnd"></image>
+
+  <!-- SKU 弹窗 -->
+  <view class="sku-mask" wx:if="{{skuPopupShow}}" bindtap="closeSkuPopup"></view>
+  <view class="sku-popup {{skuPopupShow ? 'show' : ''}}">
+    <view class="sku-header">
+      <image class="sku-img" src="{{skuProductDetail.banners[0]}}" mode="aspectFill"></image>
+      <view class="sku-header-info">
+        <view class="sku-price">¥{{skuProductDetail.price}}</view>
+        <view class="sku-stock">库存 {{skuProductDetail.stock}} 件</view>
+        <view class="sku-selected">已选: {{skuSelectedText || '请选择'}}</view>
+      </view>
+      <view class="sku-close" bindtap="closeSkuPopup">×</view>
+    </view>
+    <scroll-view class="sku-body" scroll-y>
+      <block wx:for="{{skuSpecGroups}}" wx:key="name" wx:for-index="gIdx">
+        <view class="sku-group">
+          <view class="sku-title">{{item.name}}</view>
+          <view class="sku-tags">
+            <block wx:for="{{item.values}}" wx:key="id" wx:for-index="vIdx" wx:for-item="val">
+              <view class="sku-tag {{val.selected ? 'active' : ''}} {{val.disabled ? 'disabled' : ''}}"
+                    bindtap="onSkuTagTap"
+                    data-group-index="{{gIdx}}"
+                    data-value-index="{{vIdx}}">{{val.value}}</view>
+            </block>
+          </view>
+        </view>
+      </block>
+      <view class="sku-group sku-count-group">
+        <view class="sku-title">购买数量</view>
+        <view class="stepper">
+          <view class="stepper-btn" bindtap="onSkuCountMinus">-</view>
+          <view class="stepper-num">{{skuBuyCount}}</view>
+          <view class="stepper-btn" bindtap="onSkuCountPlus">+</view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="sku-footer">
+      <view class="btn-action btn-sku-confirm" bindtap="confirmAddToCart">确定</view>
+    </view>
+  </view>
+</view>

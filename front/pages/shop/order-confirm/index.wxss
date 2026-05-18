@@ -1,0 +1,346 @@
+.confirm-container {
+  height: 100vh;
+  background: var(--bg-page);
+  overflow: hidden;
+}
+
+.confirm-scroll {
+  height: 100vh;
+  background: var(--bg-page);
+}
+
+.page-head {
+  padding: 36rpx 32rpx 12rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.page-kicker {
+  margin-left: 16rpx;
+  margin-bottom: 8rpx;
+  font-size: 20rpx;
+  color: var(--text-muted);
+  letter-spacing: 2rpx;
+  font-family: 'Bahnschrift', monospace;
+}
+
+.page-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.5rpx;
+}
+
+.section-label {
+  margin: 28rpx 32rpx 16rpx;
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.address-card,
+.goods-card,
+.summary-card,
+.remark-card {
+  margin: 0 32rpx;
+  border-radius: 32rpx;
+  background: var(--bg-card);
+  box-shadow: 0 10rpx 40rpx -18rpx rgba(54,46,45,0.12);
+}
+
+.address-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 32rpx 30rpx 32rpx 28rpx;
+  overflow: hidden;
+}
+
+.address-mark {
+  width: 8rpx;
+  height: 96rpx;
+  border-radius: 8rpx;
+  background: var(--primary);
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.address-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.address-name {
+  font-size: 32rpx;
+  color: var(--text-main);
+  font-weight: 700;
+  margin-right: 16rpx;
+}
+
+.address-phone {
+  font-size: 28rpx;
+  color: var(--text-main);
+  font-family: 'Bahnschrift', monospace;
+}
+
+.default-badge {
+  margin-left: 14rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  background: rgba(203,64,66,0.1);
+  color: var(--primary);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.address-line,
+.address-detail {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--text-muted);
+  font-size: 26rpx;
+  line-height: 38rpx;
+}
+
+.arrow-icon {
+  color: var(--text-muted);
+  font-size: 48rpx;
+  margin-left: 18rpx;
+}
+
+.goods-card {
+  overflow: hidden;
+}
+
+.goods-item {
+  display: flex;
+  padding: 28rpx;
+  border-bottom: 1rpx solid rgba(235,229,223,0.72);
+}
+
+.goods-item:last-child {
+  border-bottom: none;
+}
+
+.goods-img {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 24rpx;
+  background: var(--bg-input);
+  flex-shrink: 0;
+}
+
+.goods-info {
+  flex: 1;
+  min-width: 0;
+  margin-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.goods-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 40rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.goods-spec {
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  color: var(--text-muted);
+}
+
+.goods-count {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-family: 'Bahnschrift', monospace;
+}
+
+.goods-price {
+  width: 136rpx;
+  margin-left: 18rpx;
+  text-align: right;
+  color: var(--primary);
+  font-family: 'Bahnschrift', monospace;
+}
+
+.price-symbol {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.price-num {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.subtotal {
+  display: block;
+  margin-top: 16rpx;
+  color: var(--text-muted);
+  font-size: 22rpx;
+}
+
+.summary-card {
+  padding: 16rpx 28rpx;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68rpx;
+  border-bottom: 1rpx solid rgba(235,229,223,0.72);
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  color: var(--text-muted);
+  font-size: 26rpx;
+}
+
+.summary-value {
+  color: var(--text-main);
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.discount {
+  color: var(--primary);
+}
+
+.total-row {
+  min-height: 86rpx;
+}
+
+.summary-total {
+  color: var(--primary);
+  font-size: 40rpx;
+  font-weight: 800;
+  font-family: 'Bahnschrift', monospace;
+}
+
+.remark-card {
+  margin-top: 28rpx;
+  padding: 28rpx;
+}
+
+.remark-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.remark-title {
+  color: var(--text-main);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.remark-count {
+  color: var(--text-muted);
+  font-size: 22rpx;
+}
+
+.remark-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  height: 128rpx;
+  min-height: 128rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 24rpx;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-size: 26rpx;
+  line-height: 38rpx;
+}
+
+.remark-placeholder {
+  color: var(--text-muted);
+}
+
+.bottom-scroll-spacer {
+  height: calc(196rpx + env(safe-area-inset-bottom));
+  background: var(--bg-page);
+}
+
+.card-active-feedback,
+.btn-active-feedback {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.submit-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1rpx solid rgba(0,0,0,0.04);
+}
+
+.submit-content {
+  min-height: 120rpx;
+  padding: 22rpx 32rpx calc(22rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pay-copy {
+  display: flex;
+  align-items: baseline;
+}
+
+.pay-label {
+  color: var(--text-muted);
+  font-size: 26rpx;
+  margin-right: 12rpx;
+}
+
+.pay-amount {
+  color: var(--primary);
+  font-size: 44rpx;
+  font-weight: 800;
+  font-family: 'Bahnschrift', monospace;
+}
+
+.submit-btn {
+  height: 88rpx;
+  min-width: 236rpx;
+  padding: 0 42rpx;
+  border-radius: 44rpx;
+  background: var(--text-main);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 700;
+  box-shadow: 0 12rpx 24rpx -14rpx rgba(54,46,45,0.5);
+}

@@ -1,0 +1,138 @@
+<view class="container address-page">
+  <scroll-view class="address-scroll" scroll-y>
+    <view class="page-head">
+      <view class="head-copy">
+        <text class="page-title">{{isSelectMode ? '选择地址' : '地址管理'}}</text>
+        <text class="page-kicker">{{isSelectMode ? 'SELECT ADDRESS' : 'ADDRESS BOOK'}}</text>
+      </view>
+      <text class="address-count">{{addresses.length}} 条</text>
+    </view>
+
+    <view wx:if="{{loading}}" class="skeleton-list">
+      <view class="skeleton-card"></view>
+      <view class="skeleton-card is-short"></view>
+    </view>
+
+    <view wx:elif="{{addresses.length === 0}}" class="empty-state">
+      <view class="empty-mark">
+        <view class="empty-line"></view>
+      </view>
+      <text class="empty-title">还没有收货地址</text>
+      <text class="empty-desc">添加常用地址后，下单时可以直接写入订单快照。</text>
+      <view class="empty-btn" bindtap="openCreate" hover-class="active-feedback" hover-stay-time="80">新增地址</view>
+    </view>
+
+    <view wx:else class="address-list">
+      <block wx:for="{{addresses}}" wx:key="id">
+        <view class="address-swipe-shell">
+          <view class="delete-action {{item.swipeX < 0 ? 'is-visible' : ''}}" data-id="{{item.id}}" catchtap="deleteAddress" hover-class="active-feedback" hover-stay-time="80">
+            <view class="delete-circle">
+              <view class="trash-lid"></view>
+              <view class="trash-can">
+                <view class="trash-line"></view>
+                <view class="trash-line"></view>
+              </view>
+            </view>
+          </view>
+
+          <view
+            class="address-card address-swipe-content {{item.isSwiping ? 'is-swiping' : ''}} {{isSelectMode && selectedAddressId === item.id ? 'is-selected' : ''}}"
+            style="transform: translateX({{item.swipeX || 0}}rpx);"
+            data-id="{{item.id}}"
+            data-index="{{index}}"
+            bindtap="selectAddress"
+            bindtouchstart="onAddressTouchStart"
+            bindtouchmove="onAddressTouchMove"
+            bindtouchend="onAddressTouchEnd"
+            bindtouchcancel="onAddressTouchEnd"
+            hover-class="active-feedback"
+            hover-stay-time="80"
+          >
+            <view class="address-main">
+              <view class="address-top">
+                <text class="address-name">{{item.name}}</text>
+                <text class="address-phone">{{item.phone}}</text>
+                <text class="selected-badge" wx:if="{{isSelectMode && selectedAddressId === item.id}}">已选</text>
+              </view>
+              <text class="address-region">{{item.province}} {{item.city}} {{item.district}}</text>
+              <text class="address-detail">{{item.detail}}</text>
+              <view class="address-actions">
+                <view
+                  wx:if="{{item.is_default !== 1}}"
+                  class="default-action-btn"
+                  data-id="{{item.id}}"
+                  catchtap="setDefault"
+                  hover-class="active-feedback"
+                  hover-stay-time="80"
+                >设为默认</view>
+                <view wx:else class="default-action-btn is-disabled">已设默认</view>
+              </view>
+            </view>
+            <text class="select-arrow" wx:if="{{isSelectMode}}">›</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="bottom-scroll-spacer"></view>
+  </scroll-view>
+
+  <view class="bottom-bar">
+    <view class="bottom-content safe-area-bottom">
+      <view class="add-btn" bindtap="openCreate" hover-class="active-feedback" hover-stay-time="80">新增地址</view>
+    </view>
+  </view>
+
+  <view wx:if="{{showEditor}}" class="drawer-mask {{editorActive ? 'show' : ''}}" catchtap="closeEditor">
+    <view class="drawer-panel {{editorActive ? 'show' : ''}}" catchtap="stopTap">
+      <view class="drawer-head">
+        <view>
+          <text class="drawer-title">{{editingId ? '编辑地址' : '新增地址'}}</text>
+          <text class="drawer-sub">收货信息会用于下单地址快照</text>
+        </view>
+        <view class="drawer-close" bindtap="closeEditor" hover-class="active-feedback" hover-stay-time="80">×</view>
+      </view>
+
+      <view class="form-block">
+        <text class="form-label">收货人</text>
+        <input class="form-input" value="{{form.name}}" placeholder="请输入姓名" placeholder-class="input-placeholder" bindinput="onNameInput" />
+        <text class="form-error" wx:if="{{errors.name}}">{{errors.name}}</text>
+      </view>
+
+      <view class="form-block">
+        <text class="form-label">手机号</text>
+        <input class="form-input" type="number" maxlength="11" value="{{form.phone}}" placeholder="请输入 11 位手机号" placeholder-class="input-placeholder" bindinput="onPhoneInput" />
+        <text class="form-error" wx:if="{{errors.phone}}">{{errors.phone}}</text>
+      </view>
+
+      <view class="form-block">
+        <text class="form-label">省市区</text>
+        <picker mode="region" value="{{region}}" bindchange="onRegionChange">
+          <view class="picker-input {{form.province ? '' : 'is-placeholder'}}" hover-class="active-feedback" hover-stay-time="80">
+            {{form.province ? form.province + ' ' + form.city + ' ' + form.district : '请选择省市区'}}
+          </view>
+        </picker>
+        <text class="form-error" wx:if="{{errors.region}}">{{errors.region}}</text>
+      </view>
+
+      <view class="form-block">
+        <text class="form-label">详细地址</text>
+        <textarea class="detail-input" maxlength="256" value="{{form.detail}}" placeholder="街道、楼栋、门牌号" placeholder-class="input-placeholder" bindinput="onDetailInput"></textarea>
+        <text class="form-error" wx:if="{{errors.detail}}">{{errors.detail}}</text>
+      </view>
+
+      <view class="default-row">
+        <view>
+          <text class="default-title">设为默认地址</text>
+          <text class="default-desc">下单时会优先填入默认地址</text>
+        </view>
+        <switch checked="{{form.is_default === 1}}" color="#362E2D" bindchange="onDefaultChange" />
+      </view>
+
+      <view class="drawer-actions">
+        <view class="cancel-btn" bindtap="closeEditor" hover-class="active-feedback" hover-stay-time="80">取消</view>
+        <view class="save-btn" bindtap="saveAddress" hover-class="active-feedback" hover-stay-time="80">{{submitting ? '保存中' : '保存地址'}}</view>
+      </view>
+    </view>
+  </view>
+</view>
