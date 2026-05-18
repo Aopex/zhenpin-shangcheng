@@ -41,7 +41,8 @@ Page({
   },
 
   switchToCategory(categoryId) {
-    const category = this.data.categories.find(c => c.id === categoryId);
+    const id = Number(categoryId);
+    const category = this.data.categories.find(c => c.id === id);
     if (category) {
       this.setData({
         activeCategoryId: category.id,
@@ -51,18 +52,28 @@ Page({
     }
   },
 
-  fetchCategoryData() {
+  async fetchCategoryData() {
     wx.showLoading({ title: '加载中...', mask: true });
-    setTimeout(() => {
-      const categories = api.getCategoriesWithProducts();
+    try {
+      const categories = await api.getCategoriesWithProducts();
 
       const targetId = wx.getStorageSync('shopTargetCategoryId');
       const initCategory = targetId
-        ? (categories.find(c => c.id === targetId) || categories[0])
+        ? (categories.find(c => c.id === Number(targetId)) || categories[0])
         : categories[0];
 
       if (targetId) {
         wx.removeStorageSync('shopTargetCategoryId');
+      }
+
+      if (!initCategory) {
+        this.setData({
+          categories: [],
+          activeCategoryId: 0,
+          activeCategoryName: '',
+          currentProducts: []
+        });
+        return;
       }
 
       this.setData({
@@ -71,9 +82,14 @@ Page({
         activeCategoryName: initCategory.name,
         currentProducts: initCategory.products
       });
-
+    } catch (err) {
+      wx.showToast({
+        title: err.message || '分类加载失败',
+        icon: 'none'
+      });
+    } finally {
       wx.hideLoading();
-    }, 300);
+    }
   },
 
   switchCategory(e) {

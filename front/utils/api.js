@@ -5,40 +5,57 @@
  */
 
 const db = require('./db')
+const { BASE_URL, request } = require('./request')
+
+function _formatPrice(price) {
+  const value = Number(price || 0)
+  return value.toFixed(2)
+}
+
+function _normalizeImageUrl(url) {
+  if (!url) return ''
+  if (/^https?:\/\//.test(url)) return url
+  return `${BASE_URL}${url.startsWith('/') ? url : `/${url}`}`
+}
+
+function _toHomeProduct(product) {
+  return {
+    id: product.id,
+    no: product.productNo || product.product_no,
+    title: product.title,
+    price: _formatPrice(product.price),
+    imageUrl: _normalizeImageUrl(product.imageUrl || product.main_image)
+  }
+}
 
 // ==================== 首页 ====================
 
 /**
  * 获取首页数据
- * @returns {{ banners: Array, categories: Array, products: Array }}
+ * @returns {Promise<{ banners: Array, categories: Array, products: Array }>}
  */
-function getHomeData() {
-  const banners = db.banner
-    .filter(b => b.status === 1)
-    .sort((a, b) => b.sort_order - a.sort_order)
-    .map(b => ({
-      id: b.id,
-      title: b.title,
-      imgUrl: b.image_url,
-      linkType: b.link_type,
-      linkValue: b.link_value
-    }))
+async function getHomeData() {
+  const [bannersData, categoriesData, productsPage] = await Promise.all([
+    request({ url: '/api/banners/active' }),
+    request({ url: '/api/categories' }),
+    request({ url: '/api/products', data: { page: 1, pageSize: 40 } })
+  ])
 
-  const categories = db.category
-    .filter(c => c.status === 1)
-    .sort((a, b) => b.sort_order - a.sort_order)
-    .map(c => ({ id: c.id, name: c.name, icon: c.icon_url }))
+  const banners = (bannersData || []).map(b => ({
+    id: b.id,
+    title: b.title,
+    imgUrl: _normalizeImageUrl(b.imageUrl || b.image_url),
+    linkType: b.linkType || b.link_type,
+    linkValue: b.linkValue || b.link_value
+  }))
 
-  const products = db.product
-    .filter(p => p.status === 1)
-    .sort((a, b) => b.sort_order - a.sort_order)
-    .map(p => ({
-      id: p.id,
-      no: p.product_no,
-      title: p.title,
-      price: p.price.toFixed(2),
-      imageUrl: p.main_image
-    }))
+  const categories = (categoriesData || []).map(c => ({
+    id: c.id,
+    name: c.name,
+    icon: c.iconUrl || c.icon_url
+  }))
+
+  const products = ((productsPage && productsPage.data) || []).map(_toHomeProduct)
 
   return { banners, categories, products }
 }
@@ -47,44 +64,37 @@ function getHomeData() {
 
 /**
  * 获取分类列表（含每个分类下的商品）
- * @returns {Array<{ id, name, products: Array }>}
+ * @returns {Promise<Array<{ id, name, products: Array }>>}
  */
-function getCategoriesWithProducts() {
-  return db.category
-    .filter(c => c.status === 1)
-    .sort((a, b) => b.sort_order - a.sort_order)
-    .map(c => ({
-      id: c.id,
-      name: c.name,
-      products: db.product
-        .filter(p => p.category_id === c.id && p.status === 1)
-        .sort((a, b) => b.sort_order - a.sort_order)
-        .map(p => ({
-          id: p.id,
-          no: p.product_no,
-          title: p.title,
-          price: p.price.toFixed(2),
-          imageUrl: p.main_image
-        }))
-    }))
+async function getCategoriesWithProducts() {
+  const categoriesData = await request({ url: '/api/categories' })
+  const categories = (categoriesData || []).map(c => ({
+    id: c.id,
+    name: c.name,
+    products: []
+  }))
+
+  const productsList = await Promise.all(
+    categories.map(category => getProductsByCategory(category.id))
+  )
+
+  return categories.map((category, index) => ({
+    ...category,
+    products: productsList[index] || []
+  }))
 }
 
 /**
  * 根据分类ID获取商品列表
  * @param {number} categoryId
- * @returns {Array}
+ * @returns {Promise<Array>}
  */
-function getProductsByCategory(categoryId) {
-  return db.product
-    .filter(p => p.category_id === categoryId && p.status === 1)
-    .sort((a, b) => b.sort_order - a.sort_order)
-    .map(p => ({
-      id: p.id,
-      no: p.product_no,
-      title: p.title,
-      price: p.price.toFixed(2),
-      imageUrl: p.main_image
-    }))
+async function getProductsByCategory(categoryId) {
+  const result = await request({
+    url: `/api/products/category/${categoryId}`,
+    data: { page: 1, pageSize: 50 }
+  })
+  return ((result && result.data) || []).map(_toHomeProduct)
 }
 
 // ==================== 搜索页 ====================

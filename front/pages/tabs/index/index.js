@@ -13,15 +13,21 @@ Page({
     this.fetchHomeData();
   },
 
-  fetchHomeData() {
+  async fetchHomeData() {
     wx.showLoading({ title: '加载中...', mask: true });
-    setTimeout(() => {
-      const data = api.getHomeData();
+    try {
+      const data = await api.getHomeData();
       // 金刚区只展示 1-7 和 10（其他综合），过滤掉 8、9
       data.categories = data.categories.filter(c => c.id !== 8 && c.id !== 9);
       this.setData(data);
+    } catch (err) {
+      wx.showToast({
+        title: err.message || '首页加载失败',
+        icon: 'none'
+      });
+    } finally {
       wx.hideLoading();
-    }, 300);
+    }
   },
 
   toDetail(e) {
