@@ -24,16 +24,16 @@
 
 ```bash
 # 微信配置
-WECHAT_APPID=wx1234567890abcdef    # 替换为你的 AppID
-WECHAT_SECRET=abc123def456...      # 替换为你的 AppSecret
+WECHAT_APPID=YOUR_APPID_HERE       # 替换为你的 AppID
+WECHAT_SECRET=YOUR_SECRET_HERE     # 替换为你的 AppSecret
 ```
 
 或者直接在 `application.yaml` 中配置（仅用于开发环境）：
 
 ```yaml
 wechat:
-  appid: wx1234567890abcdef
-  secret: abc123def456...
+  appid: YOUR_APPID_HERE
+  secret: YOUR_SECRET_HERE
 ```
 
 ---
