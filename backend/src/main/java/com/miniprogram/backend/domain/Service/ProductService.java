@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -409,6 +410,70 @@ public class ProductService {
                 productPage.getTotalElements(),
                 productDTOs
         );
+    }
+
+    /**
+     * 组合搜索产品（关键词、分类、价格区间、库存、排序）
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<ProductDTO> searchProducts(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Boolean inStockOnly,
+            String sortType,
+            Integer page,
+            Integer pageSize) {
+        int validPage = (page != null && page > 0) ? page : 1;
+        int validPageSize = (pageSize != null && pageSize > 0) ? pageSize : 10;
+        boolean stockOnly = inStockOnly != null && inStockOnly;
+        String normalizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        Long normalizedCategoryId = categoryId != null && categoryId > 0 ? categoryId : null;
+
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+            BigDecimal temp = minPrice;
+            minPrice = maxPrice;
+            maxPrice = temp;
+        }
+
+        Sort sort = buildProductSearchSort(sortType);
+        Pageable pageable = PageRequest.of(validPage - 1, validPageSize, sort);
+        Page<Product> productPage = productRepository.searchActiveProducts(
+                normalizedKeyword,
+                normalizedCategoryId,
+                minPrice,
+                maxPrice,
+                stockOnly,
+                pageable);
+
+        List<ProductDTO> productDTOs = productPage.getContent().stream()
+                .map(ProductDTO::new)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                validPage,
+                validPageSize,
+                productPage.getTotalElements(),
+                productDTOs
+        );
+    }
+
+    private Sort buildProductSearchSort(String sortType) {
+        if ("latest".equals(sortType)) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        if ("priceAsc".equals(sortType)) {
+            return Sort.by(Sort.Direction.ASC, "price");
+        }
+        if ("priceDesc".equals(sortType)) {
+            return Sort.by(Sort.Direction.DESC, "price");
+        }
+        if ("sales".equals(sortType)) {
+            return Sort.by(Sort.Direction.DESC, "sales");
+        }
+        return Sort.by(Sort.Direction.DESC, "sortOrder")
+                .and(Sort.by(Sort.Direction.DESC, "sales"));
     }
     
     /**

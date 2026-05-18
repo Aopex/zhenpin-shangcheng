@@ -51,6 +51,28 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * 根据库存查询商品
      */
     Page<Product> findByStockGreaterThanEqualAndStatus(Integer stock, Integer status, Pageable pageable);
+
+    /**
+     * 组合搜索上架商品（关键词、分类、价格、库存）
+     */
+    @Query("""
+            SELECT p FROM Product p
+            WHERE p.status = 1
+              AND (:keyword IS NULL OR :keyword = ''
+                   OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(p.productNo) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (:categoryId IS NULL OR p.categoryId = :categoryId)
+              AND (:minPrice IS NULL OR p.price >= :minPrice)
+              AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+              AND (:inStockOnly = false OR p.stock > 0)
+            """)
+    Page<Product> searchActiveProducts(
+            @Param("keyword") String keyword,
+            @Param("categoryId") Long categoryId,
+            @Param("minPrice") java.math.BigDecimal minPrice,
+            @Param("maxPrice") java.math.BigDecimal maxPrice,
+            @Param("inStockOnly") boolean inStockOnly,
+            Pageable pageable);
     
     // ==================== 并发安全的原子操作 ====================
     

@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -71,6 +72,22 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success());
     }
     
+    // 根据名称搜索产品（分页）- 公开访问
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<ProductDTO>>> searchProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(defaultValue = "false") Boolean inStockOnly,
+            @RequestParam(defaultValue = "comprehensive") String sortType,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageResponse<ProductDTO> products = productService.searchProducts(
+                keyword, categoryId, minPrice, maxPrice, inStockOnly, sortType, page, pageSize);
+        return ResponseEntity.ok(ApiResponse.success(products));
+    }
+
     // 根据名称搜索产品（分页）- 公开访问
     @GetMapping("/search/{name}")
     public ResponseEntity<ApiResponse<PageResponse<ProductDTO>>> searchProductsByName(

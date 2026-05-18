@@ -208,7 +208,8 @@ public class OrderService {
         java.util.Map<Long, Integer> stockMap = selectedItems.stream()
                 .collect(Collectors.toMap(
                     CartItemDTO::getProductId,
-                    CartItemDTO::getQuantity
+                    CartItemDTO::getQuantity,
+                    Integer::sum
                 ));
         
         try {
@@ -243,6 +244,10 @@ public class OrderService {
         
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(404, "Order not found with id: " + orderId));
+
+        if (OrderStatus.DELETED.equals(order.getStatus())) {
+            throw new BusinessException(404, "Order not found with id: " + orderId);
+        }
         
         OrderDTO orderDTO = new OrderDTO(order);
         
@@ -254,11 +259,15 @@ public class OrderService {
                     itemDto.setId(item.getId());
                     itemDto.setOrderId(item.getOrderId());
                     itemDto.setProductId(item.getProductId());
+                    itemDto.setSkuId(item.getSkuId());
+                    itemDto.setProductNo(item.getProductNo());
                     itemDto.setTitle(item.getTitle());
                     itemDto.setImageUrl(item.getImageUrl());
+                    itemDto.setSpecText(item.getSpecText());
                     itemDto.setPrice(item.getPrice());
                     itemDto.setQuantity(item.getQuantity());
                     itemDto.setSubtotal(item.getSubtotal());
+                    itemDto.setCreatedAt(item.getCreatedAt());
                     return itemDto;
                 })
                 .collect(Collectors.toList());
@@ -292,7 +301,9 @@ public class OrderService {
         
         Page<Order> orders;
         if (status != null && !status.isEmpty()) {
-            orders = orderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(userId, status, pageable);
+            orders = OrderStatus.DELETED.equals(status)
+                    ? Page.empty(pageable)
+                    : orderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(userId, status, pageable);
         } else {
             orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
         }
@@ -318,6 +329,7 @@ public class OrderService {
                     // 从内存中获取该订单的订单项
                     List<OrderItem> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
                     dto.setItemCount(items.size());
+                    dto.setItems(items);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -400,6 +412,28 @@ public class OrderService {
         
         orderRepository.markAsPaid(orderId);
         log.info("Order paid - orderId: {}", orderId);
+    }
+
+    /**
+     * 课设模拟：提醒达到阈值后由用户侧触发自动发货
+     */
+    @Transactional
+    public void mockDeliverOrder(Long orderId, Long userId) {
+        log.info("Mock delivering order after reminders - orderId: {}, userId: {}", orderId, userId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(404, "Order not found with id: " + orderId));
+
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException(403, "You don't have permission to update this order");
+        }
+
+        if (!OrderStatus.PAID.equals(order.getStatus())) {
+            throw new BusinessException(400, "Only paid orders can be marked as shipped");
+        }
+
+        orderRepository.markAsShipped(orderId);
+        log.info("Order mock delivered - orderId: {}", orderId);
     }
     
     /**

@@ -5,7 +5,7 @@ const { clearAuthStorage } = require('../../../utils/request')
 Page({
   data: {
     userInfo: {},
-    orderStats: {},
+    orderStats: { unpaid: 0, unshipped: 0, unreceived: 0, finished: 0 },
     loginLoading: false
   },
 
@@ -13,10 +13,25 @@ Page({
     this.loadData();
   },
 
-  loadData() {
-    const userInfo = api.getUserInfo();
-    const orderStats = api.getOrderStats();
-    this.setData({ userInfo, orderStats });
+  async loadData() {
+    const localUserInfo = api.getUserInfo();
+    this.setData({ userInfo: localUserInfo });
+
+    if (!localUserInfo.isLoggedIn) {
+      this.setData({ orderStats: { unpaid: 0, unshipped: 0, unreceived: 0, finished: 0 } });
+      return;
+    }
+
+    try {
+      const [userInfo, orderStats] = await Promise.all([
+        api.fetchUserInfo(),
+        api.getOrderStats()
+      ]);
+      this.setData({ userInfo, orderStats });
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '个人中心加载失败', icon: 'none' });
+      this.setData({ userInfo: api.getUserInfo() });
+    }
   },
 
   handleLogin() {
@@ -33,8 +48,9 @@ Page({
 
         try {
           const userInfo = await api.wxLogin({ code: res.code });
+          const orderStats = await api.getOrderStats();
           getApp().globalData.userInfo = userInfo;
-          this.setData({ userInfo });
+          this.setData({ userInfo, orderStats });
           wx.showToast({ title: '登录成功', icon: 'success' });
         } catch (err) {
           wx.showToast({ title: err.message || '登录失败', icon: 'none' });
@@ -81,7 +97,8 @@ Page({
     getApp().globalData = getApp().globalData || {};
     getApp().globalData.userInfo = null;
     this.setData({
-      userInfo: api.getUserInfo()
+      userInfo: api.getUserInfo(),
+      orderStats: { unpaid: 0, unshipped: 0, unreceived: 0, finished: 0 }
     });
     wx.showToast({ title: '已退出登录', icon: 'none' });
   }

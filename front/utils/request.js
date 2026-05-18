@@ -30,6 +30,12 @@ function clearAuthStorage() {
   }
 }
 
+function getAuthErrorMessage(url, hadToken) {
+  if (hadToken) return '登录已失效，请重新登录'
+  if (buildUrl(url).indexOf(buildUrl('/api/cart')) === 0) return '请先登录后查看购物车'
+  return '请先登录后再继续'
+}
+
 function buildHeaders(url, header) {
   const headers = {
     'content-type': 'application/json',
@@ -63,10 +69,15 @@ function request(options = {}) {
           return
         }
         if (res.statusCode === 401 || body.code === 401) {
+          const authMessage = getAuthErrorMessage(url, !!getStoredToken())
           clearAuthStorage()
           if (typeof wx !== 'undefined' && wx.showToast) {
-            wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
+            wx.showToast({ title: authMessage, icon: 'none' })
           }
+          const error = new Error(authMessage)
+          error.handled = true
+          reject(error)
+          return
         }
         reject(new Error(body.message || `请求失败：${res.statusCode}`))
       },

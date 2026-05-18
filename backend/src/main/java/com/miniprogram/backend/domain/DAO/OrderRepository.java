@@ -27,7 +27,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /**
      * 根据用户ID查询订单列表（分页）
      */
-    Page<Order> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status <> 'DELETED' ORDER BY o.createdAt DESC")
+    Page<Order> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);
     
     /**
      * 根据用户ID和状态查询订单列表（分页）
@@ -42,7 +43,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /**
      * 查询用户的所有订单
      */
-    @Query("SELECT o FROM Order o WHERE o.userId = :userId ORDER BY o.createdAt DESC")
+    @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status <> 'DELETED' ORDER BY o.createdAt DESC")
     List<Order> findOrdersByUserId(@Param("userId") Long userId);
     
     /**

@@ -26,14 +26,24 @@ Page({
     this.loadCart();
   },
 
-  loadCart() {
-    const cartItems = api.getCartItems().map(item => ({
-      ...item,
-      swipeX: 0,
-      isSwiping: false
-    }));
-    this.setData({ cartItems });
-    this.calculateTotal();
+  async loadCart() {
+    try {
+      const cartItems = (await api.getCartItems()).map(item => ({
+        ...item,
+        swipeX: 0,
+        isSwiping: false
+      }));
+      this.setData({ cartItems });
+      this.calculateTotal();
+    } catch (err) {
+      this.setData({
+        cartItems: [],
+        isAllChecked: false,
+        totalPrice: '0.00',
+        totalCount: 0
+      });
+      if (!err.handled) wx.showToast({ title: err.message || '购物车加载失败', icon: 'none' });
+    }
   },
 
   onCartItemTouchStart(e) {
@@ -111,39 +121,59 @@ Page({
     });
   },
 
-  toggleCheck(e) {
-    const index = e.currentTarget.dataset.index;
-    const cartItemId = this.data.cartItems[index].id;
-    api.toggleCartItem(cartItemId);
-    this.loadCart();
-  },
-
-  toggleAllCheck() {
-    const isAllChecked = !this.data.isAllChecked;
-    api.toggleAllCartItems(isAllChecked);
-    this.loadCart();
-  },
-
-  changeCount(e) {
-    const index = e.currentTarget.dataset.index;
-    const type = e.currentTarget.dataset.type;
-    const cartItemId = this.data.cartItems[index].id;
-    const result = api.updateCartItemCount(cartItemId, type);
-    if (!result.success && result.message) {
-      wx.showToast({ title: result.message, icon: 'none' });
-      return;
-    }
-    this.loadCart();
-  },
-
-  deleteCartItem(e) {
+  async toggleCheck(e) {
     const index = e.currentTarget.dataset.index;
     const item = this.data.cartItems[index];
     if (!item) return;
 
-    api.removeCartItem(item.id);
-    wx.showToast({ title: '已删除', icon: 'success' });
-    this.loadCart();
+    try {
+      await api.toggleCartItem(item.id, !item.checked);
+      await this.loadCart();
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '更新失败', icon: 'none' });
+    }
+  },
+
+  async toggleAllCheck() {
+    const isAllChecked = !this.data.isAllChecked;
+    try {
+      await api.toggleAllCartItems(isAllChecked);
+      await this.loadCart();
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '更新失败', icon: 'none' });
+    }
+  },
+
+  async changeCount(e) {
+    const index = e.currentTarget.dataset.index;
+    const type = e.currentTarget.dataset.type;
+    const item = this.data.cartItems[index];
+    if (!item) return;
+
+    try {
+      const result = await api.updateCartItemCount(item.id, type, item.count);
+      if (!result.success && result.message) {
+        wx.showToast({ title: result.message, icon: 'none' });
+        return;
+      }
+      await this.loadCart();
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '数量更新失败', icon: 'none' });
+    }
+  },
+
+  async deleteCartItem(e) {
+    const index = e.currentTarget.dataset.index;
+    const item = this.data.cartItems[index];
+    if (!item) return;
+
+    try {
+      await api.removeCartItem(item.id);
+      wx.showToast({ title: '已删除', icon: 'success' });
+      await this.loadCart();
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+    }
   },
 
   goShopping() {

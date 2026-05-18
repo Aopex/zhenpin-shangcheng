@@ -123,7 +123,7 @@
       <view class="stock-row" bindtap="toggleDraftStock" hover-class="active-feedback">
         <view>
           <text class="stock-title">仅看有货</text>
-          <text class="stock-desc">使用 product.stock 判断商品总库存</text>
+          <text class="stock-desc">隐藏暂时缺货的商品</text>
         </view>
         <view class="switch-shell {{draftInStockOnly ? 'active' : ''}}">
           <view class="switch-dot"></view>

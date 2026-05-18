@@ -53,7 +53,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/api/orders/**", "/api/cart/**", "/api/users/me")  // 需要认证的路径
+                .addPathPatterns("/api/orders/**", "/api/cart/**", "/api/addresses/**", "/api/users/me")  // 需要认证的路径
                 .excludePathPatterns("/api/users/register", "/api/users/*/login", "/api/products/**", "/api/sessions/**");  // 排除的路径
     }
     

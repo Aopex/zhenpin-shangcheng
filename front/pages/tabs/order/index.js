@@ -36,13 +36,17 @@ Page({
     this.fetchOrders();
   },
 
-  fetchOrders() {
+  async fetchOrders() {
     wx.showLoading({ title: '加载中...', mask: true });
-    setTimeout(() => {
-      const orders = api.getOrders(this.data.currentStatus);
+    try {
+      const orders = await api.getOrders(this.data.currentStatus);
       this.setData({ displayOrders: orders });
+    } catch (err) {
+      this.setData({ displayOrders: [] });
+      if (!err.handled) wx.showToast({ title: err.message || '订单加载失败', icon: 'none' });
+    } finally {
       wx.hideLoading();
-    }, 300);
+    }
   },
 
   toDetail(e) {
@@ -57,19 +61,23 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确定要取消该订单吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          api.cancelOrder(id);
-          this.fetchOrders();
-          wx.showToast({ title: '已取消', icon: 'success' });
+          try {
+            await api.cancelOrder(id);
+            await this.fetchOrders();
+            wx.showToast({ title: '已取消', icon: 'success' });
+          } catch (err) {
+            if (!err.handled) wx.showToast({ title: err.message || '取消失败', icon: 'none' });
+          }
         }
       }
     });
   },
 
-  remindShip(e) {
+  async remindShip(e) {
     const id = e.currentTarget.dataset.id;
-    const result = api.remindShipOrder(id);
+    const result = await api.remindShipOrder(id);
     wx.showToast({
       title: result.message || '提醒失败',
       icon: result.shipped ? 'success' : 'none',
@@ -81,10 +89,14 @@ Page({
   payOrder(e) {
     const id = e.currentTarget.dataset.id;
     wx.showToast({ title: '调起支付...', icon: 'loading' });
-    setTimeout(() => {
-      api.payOrder(id);
-      this.fetchOrders();
-      wx.showToast({ title: '支付成功', icon: 'success' });
+    setTimeout(async () => {
+      try {
+        await api.payOrder(id);
+        await this.fetchOrders();
+        wx.showToast({ title: '支付成功', icon: 'success' });
+      } catch (err) {
+        if (!err.handled) wx.showToast({ title: err.message || '支付失败', icon: 'none' });
+      }
     }, 1000);
   },
 
@@ -93,14 +105,18 @@ Page({
     wx.showModal({
       title: '确认收货',
       content: '确认已经收到商品吗？',
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) return;
-        const result = api.confirmReceiveOrder(id);
-        wx.showToast({
-          title: result.success ? '已确认收货' : (result.message || '操作失败'),
-          icon: result.success ? 'success' : 'none'
-        });
-        if (result.success) this.fetchOrders();
+        try {
+          const result = await api.confirmReceiveOrder(id);
+          wx.showToast({
+            title: result.success ? '已确认收货' : (result.message || '操作失败'),
+            icon: result.success ? 'success' : 'none'
+          });
+          if (result.success) await this.fetchOrders();
+        } catch (err) {
+          if (!err.handled) wx.showToast({ title: err.message || '操作失败', icon: 'none' });
+        }
       }
     });
   },
@@ -112,14 +128,18 @@ Page({
       content: '删除后该订单将不再显示，但不会影响订单商品快照。',
       confirmText: '删除',
       confirmColor: '#CB4042',
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) return;
-        const result = api.deleteOrder(id);
-        wx.showToast({
-          title: result.success ? '已删除' : (result.message || '删除失败'),
-          icon: result.success ? 'success' : 'none'
-        });
-        if (result.success) this.fetchOrders();
+        try {
+          const result = await api.deleteOrder(id);
+          wx.showToast({
+            title: result.success ? '已删除' : (result.message || '删除失败'),
+            icon: result.success ? 'success' : 'none'
+          });
+          if (result.success) await this.fetchOrders();
+        } catch (err) {
+          if (!err.handled) wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+        }
       }
     });
   }

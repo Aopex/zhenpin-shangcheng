@@ -88,11 +88,13 @@ public class CartService {
             // 更新数量
             cartItem = existingCartItem.get();
             cartItem.setQuantity(totalQuantity);
+            cartItem.setSelected(true);
             cartItem = cartItemRepository.save(cartItem);
             log.info("Updated cart item quantity - cartItemId: {}, newQuantity: {}", cartItem.getId(), totalQuantity);
         } else {
             // 创建新的购物车项
             cartItem = new CartItem(userId, productId, skuId, quantity);
+            cartItem.setSelected(true);
             cartItem = cartItemRepository.save(cartItem);
             log.info("Created new cart item - cartItemId: {}", cartItem.getId());
         }
@@ -274,6 +276,7 @@ public class CartService {
         try {
             var product = productService.getProductById(cartItem.getProductId());
             if (product != null) {
+                dto.setProductNo(product.getProductNo());
                 dto.setProductName(product.getTitle());
                 dto.setProductPrice(product.getPrice());
                 dto.setProductImage(product.getImageUrl());
@@ -281,6 +284,24 @@ public class CartService {
             }
         } catch (Exception e) {
             log.warn("Failed to fetch product info for cart item - productId: {}", cartItem.getProductId());
+        }
+
+        if (cartItem.getSkuId() != null) {
+            try {
+                var sku = productSkuService.getSkuById(cartItem.getSkuId());
+                if (sku != null) {
+                    dto.setSpecValues(sku.getSpecValues());
+                    if (sku.getPrice() != null) {
+                        dto.setProductPrice(sku.getPrice());
+                    }
+                    if (StringUtils.hasText(sku.getImageUrl())) {
+                        dto.setProductImage(sku.getImageUrl());
+                    }
+                    dto.setProductStock(sku.getStock());
+                }
+            } catch (Exception e) {
+                log.warn("Failed to fetch SKU info for cart item - skuId: {}", cartItem.getSkuId());
+            }
         }
         
         return dto;

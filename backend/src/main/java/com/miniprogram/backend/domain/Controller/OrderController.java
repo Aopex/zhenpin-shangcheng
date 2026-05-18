@@ -48,7 +48,11 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse<OrderDTO>> getOrderDetail(@PathVariable Long orderId) {
+        Long userId = UserContext.getCurrentUserId();
         OrderDTO order = orderService.getOrderDetail(orderId);
+        if (order.getUserId() == null || !order.getUserId().equals(userId)) {
+            return ResponseEntity.status(403).body(ApiResponse.error(403, "You don't have permission to access this order"));
+        }
         return ResponseEntity.ok(ApiResponse.success(order));
     }
     
@@ -130,6 +134,16 @@ public class OrderController {
         // 从Token中获取用户ID
         Long userId = UserContext.getCurrentUserId();
         orderService.payOrder(orderId, userId);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    /**
+     * 提醒发货（课设模拟：允许用户在演示流程中触发自动发货）
+     */
+    @PutMapping("/{orderId}/remind-ship")
+    public ResponseEntity<ApiResponse<Void>> remindShip(@PathVariable Long orderId) {
+        Long userId = UserContext.getCurrentUserId();
+        orderService.mockDeliverOrder(orderId, userId);
         return ResponseEntity.ok(ApiResponse.success());
     }
     

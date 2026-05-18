@@ -53,32 +53,43 @@ Page({
     this.loadAddresses()
   },
 
-  loadAddresses() {
+  async loadAddresses() {
     this.setData({ loading: true })
-    const addresses = api.getAddresses().map(item => ({
-      ...item,
-      swipeX: 0,
-      isSwiping: false
-    }))
-    const selectedAddress = addresses.find(item => item.id === Number(this.data.selectedAddressId))
-    const defaultAddress = addresses.find(item => item.is_default === 1)
+    try {
+      const addresses = (await api.getAddresses()).map(item => ({
+        ...item,
+        swipeX: 0,
+        isSwiping: false
+      }))
+      const selectedAddress = addresses.find(item => item.id === Number(this.data.selectedAddressId))
+      const defaultAddress = addresses.find(item => item.is_default === 1)
 
-    this.setData({
-      addresses,
-      selectedAddressId: selectedAddress ? selectedAddress.id : (defaultAddress ? defaultAddress.id : 0),
-      loading: false
-    })
+      this.setData({
+        addresses,
+        selectedAddressId: selectedAddress ? selectedAddress.id : (defaultAddress ? defaultAddress.id : 0),
+        loading: false
+      })
+    } catch (err) {
+      this.setData({ addresses: [], selectedAddressId: 0, loading: false })
+      if (!err.handled) wx.showToast({ title: err.message || '地址加载失败', icon: 'none' })
+    }
   },
 
-  selectAddress(e) {
+  async selectAddress(e) {
     if (!this.data.isSelectMode) {
       this.openEdit(e)
       return
     }
     const addressId = Number(e.currentTarget.dataset.id)
-    const address = api.getAddressById(addressId)
-    if (!address) {
-      wx.showToast({ title: '地址不存在', icon: 'none' })
+    let address = null
+    try {
+      address = await api.getAddressById(addressId)
+      if (!address) {
+        wx.showToast({ title: '地址不存在', icon: 'none' })
+        return
+      }
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '地址不存在', icon: 'none' })
       return
     }
 
@@ -155,12 +166,18 @@ Page({
     }, 30)
   },
 
-  openEdit(e) {
+  async openEdit(e) {
     if (this.editorTimer) clearTimeout(this.editorTimer)
     const addressId = Number(e.currentTarget.dataset.id)
-    const address = api.getAddressById(addressId)
-    if (!address) {
-      wx.showToast({ title: '地址不存在', icon: 'none' })
+    let address = null
+    try {
+      address = await api.getAddressById(addressId)
+      if (!address) {
+        wx.showToast({ title: '地址不存在', icon: 'none' })
+        return
+      }
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '地址不存在', icon: 'none' })
       return
     }
 
@@ -256,7 +273,7 @@ Page({
     return Object.keys(errors).length === 0
   },
 
-  saveAddress() {
+  async saveAddress() {
     if (this.data.submitting || !this.validateForm()) return
 
     this.setData({ submitting: true })
@@ -266,35 +283,44 @@ Page({
       phone: this.data.form.phone.trim(),
       detail: this.data.form.detail.trim()
     }
-    const result = this.data.editingId
-      ? api.updateAddress(this.data.editingId, payload)
-      : api.createAddress(payload)
+    try {
+      const result = this.data.editingId
+        ? await api.updateAddress(this.data.editingId, payload)
+        : await api.createAddress(payload)
 
-    this.setData({ submitting: false })
+      if (!result.success) {
+        wx.showToast({ title: result.message || '保存失败', icon: 'none' })
+        return
+      }
 
-    if (!result.success) {
-      wx.showToast({ title: result.message || '保存失败', icon: 'none' })
-      return
+      wx.showToast({ title: '已保存', icon: 'success' })
+      this.setData({ submitting: false })
+      this.closeEditor()
+      await this.loadAddresses()
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '保存失败', icon: 'none' })
+    } finally {
+      this.setData({ submitting: false })
     }
-
-    wx.showToast({ title: '已保存', icon: 'success' })
-    this.closeEditor()
-    this.loadAddresses()
   },
 
-  setDefault(e) {
+  async setDefault(e) {
     const addressId = Number(e.currentTarget.dataset.id)
     const current = this.data.addresses.find(item => item.id === addressId)
     if (current && current.is_default === 1) return
 
-    const result = api.setDefaultAddress(addressId)
-    if (!result.success) {
-      wx.showToast({ title: result.message || '设置失败', icon: 'none' })
-      return
-    }
+    try {
+      const result = await api.setDefaultAddress(addressId)
+      if (!result.success) {
+        wx.showToast({ title: result.message || '设置失败', icon: 'none' })
+        return
+      }
 
-    wx.showToast({ title: '已设为默认', icon: 'success' })
-    this.loadAddresses()
+      wx.showToast({ title: '已设为默认', icon: 'success' })
+      await this.loadAddresses()
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '设置失败', icon: 'none' })
+    }
   },
 
   deleteAddress(e) {
@@ -304,22 +330,27 @@ Page({
       content: '删除后不会影响已生成订单的地址快照。',
       confirmText: '删除',
       confirmColor: '#CB4042',
-      success: res => {
+      success: async res => {
         if (!res.confirm) return
 
-        const result = api.deleteAddress(addressId)
-        if (!result.success) {
-          wx.showToast({ title: result.message || '删除失败', icon: 'none' })
+        try {
+          const result = await api.deleteAddress(addressId)
+          if (!result.success) {
+            wx.showToast({ title: result.message || '删除失败', icon: 'none' })
+            return
+          }
+
+          const app = getApp()
+          if (app.globalData && Number(app.globalData.selectedAddressId) === addressId) {
+            app.globalData.selectedAddressId = 0
+          }
+
+          wx.showToast({ title: '已删除', icon: 'success' })
+          await this.loadAddresses()
+        } catch (err) {
+          if (!err.handled) wx.showToast({ title: err.message || '删除失败', icon: 'none' })
           return
         }
-
-        const app = getApp()
-        if (app.globalData && Number(app.globalData.selectedAddressId) === addressId) {
-          app.globalData.selectedAddressId = 0
-        }
-
-        wx.showToast({ title: '已删除', icon: 'success' })
-        this.loadAddresses()
       }
     })
   }

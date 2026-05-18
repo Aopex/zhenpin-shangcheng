@@ -71,6 +71,11 @@
     </block>
   </view>
 
+  <view class="load-more" wx:if="{{products.length > 0}}">
+    <text wx:if="{{loadingMoreProducts}}">加载中...</text>
+    <text wx:elif="{{!hasMoreProducts}}">已经到底了</text>
+  </view>
+
   <!-- 底部安全距离 -->
   <view class="safe-area-bottom"></view>
 </view>

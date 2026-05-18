@@ -1,6 +1,5 @@
 // pages/shop/product-detail/index.js
 const api = require('../../../utils/api')
-const db = require('../../../utils/db')
 
 Page({
   data: {
@@ -37,10 +36,19 @@ Page({
     this._loadCartCount();
   },
 
-  _loadCartCount() {
-    const items = api.getCartItems();
-    const total = items.reduce((sum, item) => sum + item.count, 0);
-    this.setData({ cartCount: total });
+  async _loadCartCount() {
+    if (!wx.getStorageSync('token')) {
+      this.setData({ cartCount: 0 });
+      return;
+    }
+
+    try {
+      const items = await api.getCartItems();
+      const total = items.reduce((sum, item) => sum + item.count, 0);
+      this.setData({ cartCount: total });
+    } catch (err) {
+      this.setData({ cartCount: 0 });
+    }
   },
 
   async fetchProductDetail(no) {
@@ -159,7 +167,7 @@ Page({
     }
   },
 
-  confirmSku() {
+  async confirmSku() {
     // 检查是否所有规格组都已选择
     const allSelected = this.data.specGroups.every(group =>
       group.values.some(v => v.selected)
@@ -175,20 +183,21 @@ Page({
       return;
     }
 
-    // 执行对应操作
-    const productRecord = db.product.find(p => p.product_no === this.productNo);
-    if (!productRecord) return;
-
     if (this.skuAction === 'buy') {
       wx.navigateTo({
         url: `/pages/shop/order-confirm/index?type=direct&productNo=${this.productNo}&skuId=${this.data.selectedSkuId}&quantity=${this.data.buyCount}`
       });
     } else {
       // 加入购物车
-      api.addToCart(productRecord.id, this.data.selectedSkuId, this.data.buyCount);
-      this._loadCartCount();
-      wx.showToast({ title: '添加成功', icon: 'success' });
-      this._flyToCart();
+      try {
+        await api.addToCart(this.data.productDetail.id, this.data.selectedSkuId, this.data.buyCount);
+        await this._loadCartCount();
+        wx.showToast({ title: '添加成功', icon: 'success' });
+        this._flyToCart();
+      } catch (err) {
+        wx.showToast({ title: err.message || '添加失败', icon: 'none' });
+        return;
+      }
     }
 
     // 更新底部卡片显示，保留选择状态供下次打开复用

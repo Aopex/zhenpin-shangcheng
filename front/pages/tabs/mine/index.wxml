@@ -25,18 +25,22 @@
       </view>
       <view class="order-icons">
         <view class="icon-item" bindtap="toOrderList" data-status="UNPAID" hover-class="active-feedback">
+          <text class="order-badge" wx:if="{{orderStats.unpaid > 0}}">{{orderStats.unpaid}}</text>
           <image class="icon-img" src="/assets/icon/mine/待付款.svg" mode="aspectFit"></image>
           <text class="icon-text">待付款</text>
         </view>
         <view class="icon-item" bindtap="toOrderList" data-status="UNSHIPPED" hover-class="active-feedback">
+          <text class="order-badge" wx:if="{{orderStats.unshipped > 0}}">{{orderStats.unshipped}}</text>
           <image class="icon-img" src="/assets/icon/mine/待发货.svg" mode="aspectFit"></image>
           <text class="icon-text">待发货</text>
         </view>
         <view class="icon-item" bindtap="toOrderList" data-status="UNRECEIVED" hover-class="active-feedback">
+          <text class="order-badge" wx:if="{{orderStats.unreceived > 0}}">{{orderStats.unreceived}}</text>
           <image class="icon-img" src="/assets/icon/mine/待收货.svg" mode="aspectFit"></image>
           <text class="icon-text">待收货</text>
         </view>
         <view class="icon-item" bindtap="toOrderList" data-status="FINISHED" hover-class="active-feedback">
+          <text class="order-badge" wx:if="{{orderStats.finished > 0}}">{{orderStats.finished}}</text>
           <image class="icon-img" src="/assets/icon/mine/已完成.svg" mode="aspectFit"></image>
           <text class="icon-text">已完成</text>
         </view>

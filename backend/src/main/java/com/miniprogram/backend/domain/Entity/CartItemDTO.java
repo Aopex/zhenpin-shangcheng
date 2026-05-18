@@ -19,10 +19,12 @@ public class CartItemDTO {
     private LocalDateTime updateTime;
     
     // 产品信息（关联查询）
+    private String productNo;
     private String productName;
     private BigDecimal productPrice;
     private String productImage;
     private Integer productStock;
+    private String specValues;
     
     // 构造函数
     public CartItemDTO() {}
@@ -102,6 +104,14 @@ public class CartItemDTO {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
+
+    public String getProductNo() {
+        return productNo;
+    }
+
+    public void setProductNo(String productNo) {
+        this.productNo = productNo;
+    }
     
     public String getProductName() {
         return productName;
@@ -133,6 +143,14 @@ public class CartItemDTO {
     
     public void setProductStock(Integer productStock) {
         this.productStock = productStock;
+    }
+
+    public String getSpecValues() {
+        return specValues;
+    }
+
+    public void setSpecValues(String specValues) {
+        this.specValues = specValues;
     }
     
     /**

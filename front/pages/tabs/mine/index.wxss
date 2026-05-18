@@ -121,6 +121,22 @@
   align-items: center;
   width: 25%;
   transition: all 0.2s ease;
+  position: relative;
+}
+.order-badge {
+  position: absolute;
+  top: -8rpx;
+  right: 34rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  border-radius: 16rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 20rpx;
+  line-height: 32rpx;
+  text-align: center;
+  box-sizing: border-box;
 }
 .icon-img {
   width: 64rpx;

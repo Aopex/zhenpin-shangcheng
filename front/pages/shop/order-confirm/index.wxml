@@ -18,7 +18,6 @@
       </view>
       <view class="address-content" wx:else>
         <text class="address-name">请选择收货地址</text>
-        <text class="address-line">订单需要写入 address_snapshot 地址快照</text>
       </view>
       <text class="arrow-icon">›</text>
     </view>

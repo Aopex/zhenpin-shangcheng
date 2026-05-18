@@ -1,6 +1,5 @@
 // pages/tabs/shop/index.js
 const api = require('../../../utils/api')
-const db = require('../../../utils/db')
 
 Page({
   data: {
@@ -231,7 +230,7 @@ Page({
     this.setData({ flyImg: '', flyAnim: '' });
   },
 
-  confirmAddToCart() {
+  async confirmAddToCart() {
     const allSelected = this.data.skuSpecGroups.every(g => g.values.some(v => v.selected));
     if (!allSelected) {
       wx.showToast({ title: '请选择完整规格', icon: 'none' });
@@ -241,11 +240,18 @@ Page({
       wx.showToast({ title: '暂无可选规格', icon: 'none' });
       return;
     }
-    const productRecord = db.product.find(p => p.product_no === this._skuProductNo);
-    if (!productRecord) return;
-    api.addToCart(productRecord.id, this.data.skuSelectedId, this.data.skuBuyCount);
-    wx.showToast({ title: '添加成功', icon: 'success' });
-    this._flyToCart();
-    this.setData({ skuPopupShow: false });
+
+    try {
+      await api.addToCart(
+        this.data.skuProductDetail.id,
+        this.data.skuSelectedId,
+        this.data.skuBuyCount
+      );
+      wx.showToast({ title: '添加成功', icon: 'success' });
+      this._flyToCart();
+      this.setData({ skuPopupShow: false });
+    } catch (err) {
+      wx.showToast({ title: err.message || '添加失败', icon: 'none' });
+    }
   }
 });

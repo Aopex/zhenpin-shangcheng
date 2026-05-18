@@ -13,9 +13,8 @@ import java.util.List;
 public class CreateOrderRequest {
     
     /**
-     * 用户ID
+     * 用户ID（兼容旧请求体，实际以后端 JWT 用户为准）
      */
-    @NotNull(message = "用户ID不能为空")
     private Long userId;
     
     /**

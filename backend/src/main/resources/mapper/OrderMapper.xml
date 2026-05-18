@@ -42,7 +42,9 @@
             SUM(CASE WHEN status = 'SHIPPED' THEN 1 ELSE 0 END) as delivered,
             SUM(CASE WHEN status = 'FINISHED' THEN 1 ELSE 0 END) as completed,
             SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled
-        FROM orders WHERE user_id = #{userId}
+        FROM orders
+        WHERE user_id = #{userId}
+        AND status &lt;&gt; 'DELETED'
     </select>
 
 </mapper>

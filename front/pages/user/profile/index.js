@@ -20,15 +20,26 @@ Page({
     this.loadProfile()
   },
 
-  loadProfile() {
-    const userInfo = api.getUserInfo()
-    const nickname = userInfo.nickname || ''
-    const gender = Number(userInfo.gender || 1)
-    this.setData({
-      nickname,
-      phone: userInfo.phone || '',
-      gender: [1, 2].includes(gender) ? gender : 1
-    })
+  async loadProfile() {
+    try {
+      const userInfo = await api.fetchUserInfo()
+      const nickname = userInfo.nickname || ''
+      const gender = Number(userInfo.gender || 1)
+      this.setData({
+        nickname,
+        phone: userInfo.phone || '',
+        gender: [1, 2].includes(gender) ? gender : 1
+      })
+    } catch (err) {
+      if (!err.handled) wx.showToast({ title: err.message || '资料加载失败', icon: 'none' })
+      const userInfo = api.getUserInfo()
+      const gender = Number(userInfo.gender || 1)
+      this.setData({
+        nickname: userInfo.nickname || '',
+        phone: userInfo.phone || '',
+        gender: [1, 2].includes(gender) ? gender : 1
+      })
+    }
   },
 
   onNicknameInput(e) {
@@ -53,10 +64,12 @@ Page({
       gender: this.data.gender
     })
 
-    wx.showToast({
-      title: result.success ? '已保存' : (result.message || '保存失败'),
-      icon: result.success ? 'success' : 'none'
-    })
+    if (result.success || !result.handled) {
+      wx.showToast({
+        title: result.success ? '已保存' : (result.message || '保存失败'),
+        icon: result.success ? 'success' : 'none'
+      })
+    }
 
     if (result.success) {
       getApp().globalData = getApp().globalData || {}

@@ -6,7 +6,12 @@ Page({
     banners: [],
     categories: [],
     products: [],
-    searchKeyword: ''
+    searchKeyword: '',
+    productPage: 1,
+    productPageSize: 20,
+    productTotal: 0,
+    hasMoreProducts: true,
+    loadingMoreProducts: false
   },
 
   onLoad() {
@@ -19,7 +24,10 @@ Page({
       const data = await api.getHomeData();
       // 金刚区只展示 1-7 和 10（其他综合），过滤掉 8、9
       data.categories = data.categories.filter(c => c.id !== 8 && c.id !== 9);
-      this.setData(data);
+      this.setData({
+        ...data,
+        loadingMoreProducts: false
+      });
     } catch (err) {
       wx.showToast({
         title: err.message || '首页加载失败',
@@ -27,6 +35,34 @@ Page({
       });
     } finally {
       wx.hideLoading();
+    }
+  },
+
+  async onReachBottom() {
+    if (this.data.loadingMoreProducts || !this.data.hasMoreProducts) return;
+
+    this.setData({ loadingMoreProducts: true });
+    try {
+      const nextPage = Number(this.data.productPage || 1) + 1;
+      const result = await api.getHomeProducts({
+        page: nextPage,
+        pageSize: this.data.productPageSize || 20
+      });
+
+      this.setData({
+        products: this.data.products.concat(result.products),
+        productPage: result.page,
+        productPageSize: result.pageSize,
+        productTotal: result.total,
+        hasMoreProducts: result.hasNext,
+        loadingMoreProducts: false
+      });
+    } catch (err) {
+      wx.showToast({
+        title: err.message || '加载更多失败',
+        icon: 'none'
+      });
+      this.setData({ loadingMoreProducts: false });
     }
   },
 

@@ -167,10 +167,10 @@ Page({
     this.search()
   },
 
-  search() {
+  async search() {
     this.setData({ loading: true })
-    setTimeout(() => {
-      const result = api.searchProducts({
+    try {
+      const result = await api.searchProducts({
         keyword: this.data.keyword,
         sortType: this.data.sortType,
         categoryId: this.data.categoryId,
@@ -186,7 +186,15 @@ Page({
         resultCountText: `${result.total} 件`,
         loading: false
       })
-    }, 220)
+    } catch (err) {
+      wx.showToast({ title: err.message || '搜索失败', icon: 'none' })
+      this.setData({
+        products: [],
+        total: 0,
+        resultCountText: '0 件',
+        loading: false
+      })
+    }
   },
 
   toDetail(e) {

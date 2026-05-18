@@ -1,6 +1,7 @@
 package com.miniprogram.backend.domain.Controller;
 
 import com.miniprogram.backend.common.ApiResponse;
+import com.miniprogram.backend.common.BusinessException;
 import com.miniprogram.backend.common.PageResponse;
 import com.miniprogram.backend.common.RequireAdmin;
 import com.miniprogram.backend.common.UserContext;
@@ -25,7 +26,7 @@ public class UserAddressController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserAddressDTO>> getAddressById(@PathVariable Long id) {
         UserAddressDTO address = userAddressService.getAddressById(id);
-        // TODO: 可以添加权限验证，确保只能查看自己的地址或管理员可以查看所有地址
+        requireOwnAddress(address);
         return ResponseEntity.ok(ApiResponse.success(address));
     }
     
@@ -44,7 +45,7 @@ public class UserAddressController {
     public ResponseEntity<ApiResponse<UserAddressDTO>> updateAddress(
             @PathVariable Long id, 
             @Valid @RequestBody UserAddressDTO addressDTO) {
-        // TODO: 可以添加权限验证，确保只能修改自己的地址
+        requireOwnAddress(userAddressService.getAddressById(id));
         UserAddressDTO address = userAddressService.updateAddress(id, addressDTO);
         return ResponseEntity.ok(ApiResponse.success(address));
     }
@@ -52,7 +53,7 @@ public class UserAddressController {
     // 删除地址（逻辑删除）- 需要验证用户权限
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAddress(@PathVariable Long id) {
-        // TODO: 可以添加权限验证，确保只能删除自己的地址
+        requireOwnAddress(userAddressService.getAddressById(id));
         userAddressService.deleteAddress(id);
         return ResponseEntity.ok(ApiResponse.success());
     }
@@ -89,7 +90,7 @@ public class UserAddressController {
     // 设置默认地址 - 从Token中获取用户ID
     @PostMapping("/{id}/set-default")
     public ResponseEntity<ApiResponse<Void>> setDefaultAddress(@PathVariable Long id) {
-        // TODO: 可以添加权限验证，确保只能设置自己的地址为默认
+        requireOwnAddress(userAddressService.getAddressById(id));
         userAddressService.setDefaultAddress(id);
         return ResponseEntity.ok(ApiResponse.success());
     }
@@ -101,6 +102,13 @@ public class UserAddressController {
         Long userId = UserContext.getCurrentUserId();
         long count = userAddressService.countUserAddresses(userId);
         return ResponseEntity.ok(ApiResponse.success(count));
+    }
+
+    private void requireOwnAddress(UserAddressDTO address) {
+        Long userId = UserContext.getCurrentUserId();
+        if (address == null || address.getUserId() == null || !address.getUserId().equals(userId)) {
+            throw new BusinessException(403, "You don't have permission to access this address");
+        }
     }
     
     // ==================== MyBatis 复杂查询接口 ====================

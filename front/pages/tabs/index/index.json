@@ -3,5 +3,6 @@
   },
   "navigationBarTitleText": "首页",
   "navigationBarBackgroundColor": "#FFFFFF",
-  "navigationBarTextStyle": "black"
+  "navigationBarTextStyle": "black",
+  "onReachBottomDistance": 120
 }
