@@ -43,13 +43,12 @@ Page({
     this.setData({ cartCount: total });
   },
 
-  fetchProductDetail(no) {
+  async fetchProductDetail(no) {
     wx.showLoading({ title: '加载中...', mask: true });
 
-    setTimeout(() => {
-      const detail = api.getProductDetail(no);
+    try {
+      const detail = await api.getProductDetail(no);
       if (!detail) {
-        wx.hideLoading();
         wx.showToast({ title: '商品不存在', icon: 'none' });
         return;
       }
@@ -77,8 +76,14 @@ Page({
         specGroups: specGroups,
         specNames: detail.specs.map(s => s.name).join('/')
       });
+    } catch (err) {
+      wx.showToast({
+        title: err.message || '商品加载失败',
+        icon: 'none'
+      });
+    } finally {
       wx.hideLoading();
-    }, 300);
+    }
   },
 
   onSwiperChange(e) {

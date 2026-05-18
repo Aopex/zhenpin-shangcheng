@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.miniprogram.backend.domain.Mapper.UserMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="UserResultMap" type="com.miniprogram.backend.domain.Entity.User">
+        <id property="id" column="id"/>
+        <result property="openid" column="openid"/>
+        <result property="unionId" column="union_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 根据注册时间范围查询用户 -->
+    <select id="findByCreateTimeRange" resultMap="UserResultMap">
+        SELECT * FROM users
+        WHERE created_at BETWEEN #{startTime} AND #{endTime}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据注册时间范围查询用户（分页） -->
+    <select id="findByCreateTimeRangeWithPage" resultMap="UserResultMap">
+        SELECT * FROM users
+        WHERE created_at BETWEEN #{startTime} AND #{endTime}
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 统计注册时间范围内的用户总数 -->
+    <select id="countByCreateTimeRange" resultType="long">
+        SELECT COUNT(*) FROM users
+        WHERE created_at BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <!-- 批量插入用户 -->
+    <insert id="batchInsert">
+        INSERT INTO users (openid, union_id, nickname, avatar_url, gender, phone, status, last_login_time) VALUES
+        <foreach collection="users" item="user" separator=",">
+            (#{user.openid}, #{user.unionId}, #{user.nickname}, #{user.avatarUrl}, #{user.gender}, #{user.phone}, #{user.status}, #{user.lastLoginTime})
+        </foreach>
+    </insert>
+
+    <!-- 批量更新用户状态 -->
+    <update id="batchUpdateStatus">
+        UPDATE users SET status = #{status}, updated_at = CURRENT_TIMESTAMP
+        WHERE id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
+
+    <!-- 查询活跃用户（最近有登录的用户） -->
+    <select id="findActiveUsers" resultMap="UserResultMap">
+        SELECT * FROM users
+        WHERE last_login_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+        AND status = 1
+        ORDER BY last_login_time DESC
+    </select>
+
+</mapper>

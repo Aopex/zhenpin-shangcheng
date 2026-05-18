@@ -177,60 +177,32 @@ function searchProducts(params = {}) {
 /**
  * 根据商品编号获取完整详情（含图片、规格、SKU）
  * @param {string} productNo
- * @returns {object|null}
+ * @returns {Promise<object|null>}
  */
-function getProductDetail(productNo) {
-  const p = db.product.find(item => item.product_no === productNo)
-  if (!p) return null
-
-  // 轮播主图 (image_type=1)
-  const banners = db.product_image
-    .filter(img => img.product_id === p.id && img.image_type === 1)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map(img => img.image_url)
-
-  // 详情长图 (image_type=2)
-  const detailImages = db.product_image
-    .filter(img => img.product_id === p.id && img.image_type === 2)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map(img => img.image_url)
-
-  // 所有 SKU
-  const skus = db.product_sku
-    .filter(sku => sku.product_id === p.id && sku.status === 1)
-    .map(sku => ({
-      id: sku.id,
-      sku_no: sku.sku_no,
-      spec_values: sku.spec_values,
-      price: sku.price || p.price,
-      stock: sku.stock,
-      image_url: sku.image_url
-    }))
-
-  // 规格分组 (spec + spec_value)
-  const specs = db.spec
-    .filter(s => s.product_id === p.id)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map(s => ({
-      id: s.id,
-      name: s.name,
-      values: db.spec_value
-        .filter(sv => sv.spec_id === s.id)
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map(sv => ({ id: sv.id, value: sv.value }))
-    }))
+async function getProductDetail(productNo) {
+  const detail = await request({ url: `/api/products/no/${encodeURIComponent(productNo)}/detail` })
+  if (!detail) return null
 
   return {
-    no: p.product_no,
-    title: p.title,
-    price: p.price.toFixed(2),
-    originalPrice: p.original_price ? p.original_price.toFixed(2) : '',
-    sales: p.sales,
-    stock: p.stock,
-    banners,
-    detailImages,
-    skus,
-    specs
+    id: detail.id,
+    no: detail.no,
+    title: detail.title,
+    price: _formatPrice(detail.price),
+    originalPrice: detail.originalPrice ? _formatPrice(detail.originalPrice) : '',
+    sales: detail.sales || 0,
+    stock: detail.stock || 0,
+    banners: (detail.banners || []).map(_normalizeImageUrl),
+    detailImages: (detail.detailImages || []).map(_normalizeImageUrl),
+    skus: (detail.skus || []).map(sku => ({
+      id: sku.id,
+      product_id: sku.productId || sku.product_id,
+      sku_no: sku.skuNo || sku.sku_no,
+      spec_values: sku.specValues || sku.spec_values,
+      price: sku.price || detail.price,
+      stock: sku.stock || 0,
+      image_url: _normalizeImageUrl(sku.imageUrl || sku.image_url)
+    })),
+    specs: detail.specs || []
   }
 }
 

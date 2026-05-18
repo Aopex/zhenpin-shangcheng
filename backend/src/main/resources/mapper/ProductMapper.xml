@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.miniprogram.backend.domain.Mapper.ProductMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="ProductResultMap" type="com.miniprogram.backend.domain.Entity.Product">
+        <id property="id" column="id"/>
+        <result property="productNo" column="product_no"/>
+        <result property="title" column="title"/>
+        <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="stock" column="stock"/>
+        <result property="sales" column="sales"/>
+        <result property="status" column="status"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 根据价格范围查询商品 -->
+    <select id="findByPriceRange" resultMap="ProductResultMap">
+        SELECT * FROM products
+        WHERE price BETWEEN #{minPrice} AND #{maxPrice} AND status = 1
+        ORDER BY price ASC
+    </select>
+
+    <!-- 根据价格范围查询商品（分页） -->
+    <select id="findByPriceRangeWithPage" resultMap="ProductResultMap">
+        SELECT * FROM products
+        WHERE price BETWEEN #{minPrice} AND #{maxPrice} AND status = 1
+        ORDER BY price ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 批量插入商品 -->
+    <insert id="batchInsert">
+        INSERT INTO products (product_no, title, price, original_price, category_id, image_url, stock, sales, status, sort_order, description) VALUES
+        <foreach collection="products" item="product" separator=",">
+            (#{product.productNo}, #{product.title}, #{product.price}, #{product.originalPrice}, #{product.categoryId}, #{product.imageUrl}, #{product.stock}, #{product.sales}, #{product.status}, #{product.sortOrder}, #{product.description})
+        </foreach>
+    </insert>
+    
+    <!-- 统计价格范围内的商品总数 -->
+    <select id="countByPriceRange" resultType="long">
+        SELECT COUNT(*) FROM products
+        WHERE price BETWEEN #{minPrice} AND #{maxPrice} AND status = 1
+    </select>
+
+</mapper>

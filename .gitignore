@@ -32,6 +32,10 @@ build/
 dist/
 out/
 coverage/
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 # Logs and runtime files
 logs/
@@ -48,7 +52,8 @@ backend/database/backups/
 pics/
 
 # Java / Maven
-.mvn/wrapper/maven-wrapper.jar
+HELP.md
+**/.mvn/wrapper/maven-wrapper.jar
 .classpath
 .project
 .settings/
@@ -56,9 +61,11 @@ pics/
 .factorypath
 .springBeans
 .sts4-cache/
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
 
 # Python cache
 __pycache__/
 *.py[cod]
-
-backend/

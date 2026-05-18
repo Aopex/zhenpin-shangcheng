@@ -104,14 +104,26 @@ Page({
     });
   },
 
-  addToCart(e) {
+  async addToCart(e) {
     const productNo = e.currentTarget.dataset.no;
     this._skuProductImg = e.currentTarget.dataset.img || '';
-    const detail = api.getProductDetail(productNo);
-    if (!detail) return;
-    if (!detail.skus || detail.skus.length === 0) {
-      wx.showToast({ title: '暂无可选规格', icon: 'none' });
+    wx.showLoading({ title: '加载中...', mask: true });
+    let detail = null;
+    try {
+      detail = await api.getProductDetail(productNo);
+      if (!detail) return;
+      if (!detail.skus || detail.skus.length === 0) {
+        wx.showToast({ title: '暂无可选规格', icon: 'none' });
+        return;
+      }
+    } catch (err) {
+      wx.showToast({
+        title: err.message || '规格加载失败',
+        icon: 'none'
+      });
       return;
+    } finally {
+      wx.hideLoading();
     }
 
     // 同一商品保留上次选择，不同商品重置

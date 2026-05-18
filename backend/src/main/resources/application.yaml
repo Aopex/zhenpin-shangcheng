@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: backend
+  
+  # 数据库配置 - 使用MySQL数据库
+  datasource:
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/miniprogram?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB        # 单个文件最大大小
+      max-request-size: 50MB     # 整个请求最大大小
+  
+  # Web 静态资源配置（用于访问pics文件夹中的图片）
+  web:
+    resources:
+      static-locations: 
+        - classpath:/static/
+        - file:${file.upload.path}/
+  mvc:
+    static-path-pattern: /pics/**
+
+# MyBatis配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.miniprogram.backend.domain.Entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:miniprogram_default_jwt_secret_key_2024_production}  # 【重要】生产环境必须通过环境变量JWT_SECRET设置强密钥（至少32字符）
+  expiration: ${JWT_EXPIRATION:86400000}  # 24小时（毫秒）
+
+# Actuator配置 - 用于健康检查和监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # 只暴露健康和信息端点
+  endpoint:
+    health:
+      show-details: when-authorized  # 授权用户显示详细信息
+
+# 自定义文件存储配置
+file:
+  upload:
+    path: ${UPLOAD_PATH:/app/pics}  # Docker容器内的图片路径（通过卷挂载到项目根目录的pics文件夹）
+    max-size: ${MAX_FILE_SIZE:5242880}      # 最大文件大小（默认5MB）
+
+# 管理员账户初始化配置
+admin:
+  init:
+    enabled: ${ADMIN_INIT_ENABLED:true}  # 是否启用自动初始化管理员账户
+    openid: ${ADMIN_OPENID:admin_openid_001}  # 管理员openid（生产环境请修改）
+    nickname: ${ADMIN_NICKNAME:系统管理员}  # 管理员昵称
+    avatar-url: ${ADMIN_AVATAR_URL:}  # 管理员头像URL（可选）
+    phone: ${ADMIN_PHONE:}  # 管理员手机号（可选）
+
+# 订单超时配置
+order:
+  timeout:
+    minutes: ${ORDER_TIMEOUT_MINUTES:30}  # 订单超时时间（分钟），默认30分钟
+    check-interval: ${ORDER_CHECK_INTERVAL:300000}  # 定时任务检查间隔（毫秒），默认5分钟
+
+# 微信配置
+wechat:
+  appid: ${WECHAT_APPID:}      # 微信小程序 AppID（从微信公众平台获取）
+  secret: ${WECHAT_SECRET:}    # 微信小程序 AppSecret（从微信公众平台获取）

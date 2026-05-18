@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.miniprogram.backend.domain.Mapper.UserAddressMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="UserAddressResultMap" type="com.miniprogram.backend.domain.Entity.UserAddress">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="district" column="district"/>
+        <result property="detail" column="detail"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 根据收货人姓名模糊搜索地址 -->
+    <select id="findByReceiverNameContaining" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE name LIKE CONCAT('%', #{receiverName}, '%')
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+    </select>
+
+    <!-- 根据收货人姓名模糊搜索地址（分页） -->
+    <select id="findByReceiverNameContainingWithPage" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE name LIKE CONCAT('%', #{receiverName}, '%')
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 统计收货人姓名搜索结果总数 -->
+    <select id="countByReceiverNameContaining" resultType="long">
+        SELECT COUNT(*) FROM addresses
+        WHERE name LIKE CONCAT('%', #{receiverName}, '%')
+        AND is_deleted = 0
+    </select>
+
+    <!-- 根据收货人手机号查找地址 -->
+    <select id="findByReceiverPhone" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE phone = #{receiverPhone}
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+    </select>
+
+    <!-- 根据收货人手机号查找地址（分页） -->
+    <select id="findByReceiverPhoneWithPage" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE phone = #{receiverPhone}
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 统计手机号搜索结果总数 -->
+    <select id="countByReceiverPhone" resultType="long">
+        SELECT COUNT(*) FROM addresses
+        WHERE phone = #{receiverPhone}
+        AND is_deleted = 0
+    </select>
+
+    <!-- 根据省市查询地址 -->
+    <select id="findByProvinceAndCity" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE province = #{province}
+        AND city = #{city}
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+    </select>
+
+    <!-- 根据省市查询地址（分页） -->
+    <select id="findByProvinceAndCityWithPage" resultMap="UserAddressResultMap">
+        SELECT * FROM addresses
+        WHERE province = #{province}
+        AND city = #{city}
+        AND is_deleted = 0
+        ORDER BY is_default DESC, created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 统计省市查询结果总数 -->
+    <select id="countByProvinceAndCity" resultType="long">
+        SELECT COUNT(*) FROM addresses
+        WHERE province = #{province}
+        AND city = #{city}
+        AND is_deleted = 0
+    </select>
+
+    <!-- 批量设置默认地址（先取消所有，再设置新的） -->
+    <update id="batchSetDefault">
+        UPDATE addresses 
+        SET is_default = CASE WHEN id = #{addressId} THEN 1 ELSE 0 END,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 批量逻辑删除用户的地址 -->
+    <update id="batchSoftDelete">
+        UPDATE addresses 
+        SET is_deleted = 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
+
+</mapper>

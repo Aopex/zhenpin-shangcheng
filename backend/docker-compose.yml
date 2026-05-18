@@ -1,0 +1,123 @@
+version: '3.8'
+
+# ============================================
+# Docker Compose 配置说明
+# ============================================
+# 1. 首次启动会自动：
+#    - 创建 MySQL 数据库 (miniprogram)
+#    - 设置 root 密码 (默认: 123456)
+#    - 执行 schema.sql 初始化表结构
+#    - 启动 Redis 缓存服务
+#    - 启动 Spring Boot 应用
+#
+# 2. 自定义配置：
+#    - 复制 .env.example 为 .env
+#    - 修改 DB_PASSWORD、JWT_SECRET 等
+#    - 运行: docker-compose up -d
+#
+# 3. 数据持久化：
+#    - MySQL 数据存储在 mysql-data volume
+#    - Redis 数据存储在 redis-data volume
+#    - 即使删除容器，数据也会保留
+# ============================================
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: miniprogram-mysql
+    environment:
+      # MySQL root 用户密码（首次启动时设置）
+      # 可以通过 .env 文件或环境变量覆盖
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
+      
+      # 自动创建的数据库名称
+      MYSQL_DATABASE: miniprogram
+      
+      # 时区设置
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      # 数据持久化：MySQL 数据文件
+      - mysql-data:/var/lib/mysql
+      
+      # 自动初始化：首次启动时执行 schema.sql
+      # 注意：只有在数据卷为空时才会执行
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    networks:
+      - miniprogram-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: miniprogram-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - miniprogram-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot 应用
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miniprogram-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/miniprogram?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationAndValidationWhichShouldBeLongEnough}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      TZ: Asia/Shanghai
+    ports:
+      - "8080:8080"
+    volumes:
+      # 挂载项目根目录的 pics 文件夹到容器内 /app/pics
+      # 路径：../pics 表示 backend 的上一级目录（项目根目录）
+      - ../pics:/app/pics
+      # 挂载日志目录到宿主机 ./logs，方便查看
+      - ./logs:/tmp/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - miniprogram-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  miniprogram-network:
+    driver: bridge
