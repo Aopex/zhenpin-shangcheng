@@ -1,15 +1,19 @@
 Page({
   data: {
-    version: '1.0.0',
-    commitments: [
-      '精选商品信息，保持价格、库存和规格展示清晰',
-      '下单时保存地址和商品快照，方便查看历史订单',
-      '保留必要售后入口，减少不现实的课设功能堆叠'
+    showAnimation: false,
+    team: [
+      { role: '组长', name: '胡宇衡' },
+      { role: '前端开发', name: '何周烨' },
+      { role: '后端开发', name: '孙宏烨' }
     ],
-    contacts: [
-      { label: '服务时间', value: '09:00 - 21:00' },
-      { label: '客服方式', value: '在线客服' },
-      { label: '项目类型', value: '微信小程序电商课设' }
+    techStack: [
+      { title: '前端', desc: '微信小程序原生' },
+      { title: '后端', desc: 'Spring Boot, MyBatis' }
     ]
+  },
+  onLoad() {
+    setTimeout(() => {
+      this.setData({ showAnimation: true });
+    }, 50);
   }
 })

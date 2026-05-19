@@ -1,60 +1,48 @@
-<view class="container about-page">
-  <view class="about-hero">
-    <view class="brand-mark">
-      <text>商</text>
-    </view>
-    <view class="brand-copy">
-      <text class="brand-title">轻量商城</text>
-      <text class="brand-subtitle">面向课程设计的电商小程序示例</text>
-    </view>
-  </view>
-
-  <view class="section-block">
-    <view class="info-panel">
-      <view class="panel-head">
-        <text class="panel-title">项目简介</text>
-      </view>
-      <text class="intro-text">
-        本项目围绕电商购物的核心链路展开，覆盖商品浏览、分类筛选、购物车、订单确认、地址管理和个人中心等模块。页面设计以清晰、克制和可操作为主，优先保证课设场景中的功能闭环。
-      </text>
-    </view>
-  </view>
-
-  <view class="section-block">
-    <view class="info-panel">
-      <view class="panel-head">
-        <text class="panel-title">服务承诺</text>
-      </view>
-      <block wx:for="{{commitments}}" wx:key="*this">
-        <view class="list-row">
-          <view class="row-dot"></view>
-          <text class="row-text">{{item}}</text>
-        </view>
-      </block>
-    </view>
-  </view>
-
-  <view class="section-block">
-    <view class="info-panel">
-      <view class="panel-head">
-        <text class="panel-title">联系与版本</text>
-      </view>
-      <block wx:for="{{contacts}}" wx:key="label">
-        <view class="meta-row">
-          <text class="meta-label">{{item.label}}</text>
-          <text class="meta-value">{{item.value}}</text>
-        </view>
-      </block>
-      <view class="meta-row">
-        <text class="meta-label">当前版本</text>
-        <text class="meta-value">v{{version}}</text>
+<view class="container about-page {{showAnimation ? 'is-ready' : ''}}">
+  <view class="hero-section stagger-1">
+    <view class="hero-left">
+      <view class="hero-title-group">
+        <text class="hero-title">臻品商城</text>
+        <text class="hero-primary">Zhenpin Mall.</text>
       </view>
     </view>
   </view>
-
-  <view class="section-block">
-    <button class="contact-btn" open-type="contact" hover-class="active-feedback">联系客服</button>
+  <view class="bento-grid">
+    <view class="bento-card bento-intro staggered-item stagger-2">
+      <view class="card-header">
+        <view class="header-dot"></view>
+        <text class="card-title">项目简介</text>
+      </view>
+      <text class="intro-desc">臻品商城是一款专注于精选好物的微信小程序商城。本课设项目聚焦电商核心业务逻辑，力求打造极致的用户查单与购物体验，优先保证课设场景中的功能闭环。</text>
+    </view>
+    <view class="bento-card staggered-item stagger-3">
+      <view class="card-header">
+        <view class="header-dot"></view>
+        <text class="card-title">开发成员</text>
+      </view>
+      <view class="team-list">
+        <block wx:for="{{team}}" wx:key="name">
+          <view class="team-member" style="transition-delay: {{index * 100 + 300}}ms">
+            <view class="member-role">{{item.role}}</view>
+            <view class="member-name">{{item.name}}</view>
+          </view>
+        </block>
+      </view>
+    </view>
+    <view class="bento-card staggered-item stagger-4">
+      <view class="card-header">
+        <view class="header-dot"></view>
+        <text class="card-title">技术选型</text>
+      </view>
+      <view class="tech-stack-list">
+        <block wx:for="{{techStack}}" wx:key="title">
+          <view class="tech-item">
+            <view class="tech-title">{{item.title}}</view>
+            <view class="tech-desc">{{item.desc}}</view>
+          </view>
+        </block>
+      </view>
+    </view>
   </view>
-
-  <view class="safe-bottom"></view>
+  <view class="safe-area-bottom"></view>
 </view>
