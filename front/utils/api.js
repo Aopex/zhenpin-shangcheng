@@ -252,6 +252,7 @@ async function getProductDetail(productNo) {
     id: detail.id,
     no: detail.no,
     title: detail.title,
+    description: detail.description || '',
     price: _formatPrice(detail.price),
     originalPrice: detail.originalPrice ? _formatPrice(detail.originalPrice) : '',
     sales: detail.sales || 0,

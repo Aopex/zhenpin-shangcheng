@@ -131,7 +131,7 @@
   height: 32rpx;
   padding: 0 8rpx;
   border-radius: 16rpx;
-  background: var(--primary);
+  background: #362E2D;
   color: #fff;
   font-size: 20rpx;
   line-height: 32rpx;

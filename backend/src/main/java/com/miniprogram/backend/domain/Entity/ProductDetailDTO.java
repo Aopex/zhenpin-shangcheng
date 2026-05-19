@@ -7,6 +7,7 @@ public class ProductDetailDTO {
     private Long id;
     private String no;
     private String title;
+    private String description;
     private BigDecimal price;
     private BigDecimal originalPrice;
     private Integer sales;
@@ -89,6 +90,14 @@ public class ProductDetailDTO {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public BigDecimal getPrice() {

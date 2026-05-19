@@ -210,6 +210,7 @@ public class ProductService {
         detail.setId(product.getId());
         detail.setNo(product.getProductNo());
         detail.setTitle(product.getTitle());
+        detail.setDescription(product.getDescription());
         detail.setPrice(product.getPrice());
         detail.setOriginalPrice(product.getOriginalPrice());
         detail.setSales(product.getSales());
